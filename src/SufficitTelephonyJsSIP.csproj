@@ -55,9 +55,6 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components" Version="6.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />

@@ -9,13 +9,8 @@ namespace Sufficit.Telephony.JsSIP.Events
 {
     public class AnswerEventArgs
     {
-        public AnswerEventArgs()
-        {
-            MediaConstraints = new JsSIPMediaConstraints();
-        }
-
         [JsonPropertyName("mediaConstraints")]
-        public JsSIPMediaConstraints MediaConstraints { get; set; }
+        public MediaConstraints? MediaConstraints { get; set; }
 
 
         /*let options = {

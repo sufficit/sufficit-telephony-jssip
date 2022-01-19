@@ -322,8 +322,20 @@ namespace Sufficit.Telephony.JsSIP
             _logger?.LogTrace($"{logPrepend} JsSIPService Answer({DateTime.Now}): SessionID: {session.ID}, Video: {video}");
 
             var arguments = new AnswerEventArgs();
-            arguments.MediaConstraints.Video = video;
+
+            if (arguments.MediaConstraints == null) arguments.MediaConstraints = new MediaConstraints() { Video = video };
+            else arguments.MediaConstraints.Video = video;
+
             await (await JSContext()).InvokeVoidAsync(JSSIPSESSIONACTIONSFUNC, session, "answer", arguments);
+        }
+
+        public async Task Originate(string uri, MediaConstraints mediaConstraints)
+        {
+            _logger?.LogTrace($"{logPrepend} JsSIPService Originate({DateTime.Now}): Uri: {uri}");
+            var arguments = new AnswerEventArgs();
+            arguments.MediaConstraints = mediaConstraints;
+
+            await (await JSContext()).InvokeVoidAsync("Originate", uri, arguments);
         }
 
         public async Task Terminate(JsSIPSessionInfo session)
@@ -336,7 +348,7 @@ namespace Sufficit.Telephony.JsSIP
         {
             _logger?.LogTrace($"{logPrepend} JsSIPService Mute({DateTime.Now}): SessionID: {session.ID}");
 
-            var arguments = new JsSIPMediaConstraints() { Audio = audio, Video = video };
+            IMediaBasic arguments = new MediaConstraints() { Audio = audio, Video = video };
             await (await JSContext()).InvokeVoidAsync(JSSIPSESSIONACTIONSFUNC, session, "mute", arguments);
         }
 
@@ -344,7 +356,7 @@ namespace Sufficit.Telephony.JsSIP
         {
             _logger?.LogTrace($"{logPrepend} JsSIPService UnMute({DateTime.Now}): SessionID: {session.ID}");
 
-            var arguments = new JsSIPMediaConstraints() { Audio = audio, Video = video };
+            IMediaBasic arguments = new MediaConstraints() { Audio = audio, Video = video };
             await (await JSContext()).InvokeVoidAsync(JSSIPSESSIONACTIONSFUNC, session, "unmute", arguments);
         }
 

@@ -154,4 +154,23 @@ export function JsSIPSessionActions(info, action, args) {
     }
 }
 
+/**
+ * Originate a call session
+ * @param {any} uri
+ * @param {any} arguments
+ */
+export const Originate = function (uri, arguments) {
+    WebPhone.call(uri, arguments);
+}
+
+/**
+ * Answer a call session
+ * @param {any} sessionId
+ * @param {any} arguments
+ */
+export const Answer = function (sessionId, arguments) {
+    const session = WebPhone._sessions[sessionId];
+    session.answer(arguments);
+}
+
 //#endregion

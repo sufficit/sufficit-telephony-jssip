@@ -1,6 +1,10 @@
 ﻿export var WebPhone;
 export var DotNetObjectReference;
 
+let mediaSelfElementID = 'media-player-self';
+let audioRemoteElementID = 'audio-player-remote';
+let videoRemoteElementID = 'media-player-remote';
+
 /** Recupera o estado atual do serviço  */
 export function GetStatus() {
     return WebPhone.status;
@@ -55,13 +59,6 @@ export function onJsSIPLoaded(config) {
 
     // Inicializando
     WebPhone.start();
-
-
-    doTest(function (e) {
-        console.debug('test error: ', e);
-    }, function (e) { });
-
-    JsSIPTestVideo();
 }
 
 /**
@@ -101,19 +98,17 @@ function JsSIPSessionToJson() {
     return result;
 }
 
-function doTest(errorCallback, successCallback) {
+export function TestDevices() {
+    console.debug("Testing Devices");
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
     navigator.getUserMedia({
         audio: true,
         video: true
-    },
-        successCallback,
-        errorCallback);
+    }, function () { console.debug('Testing Devices: success'); }, function () { console.debug('Testing Devices: error'); });
 
-    MediaDevices();
+    //MediaDevices();
 }
 
-let mediaSelfElementID = 'media-player-self';
 async function JsSIPTestVideo() {
     console.debug(navigator.mediaDevices);
     console.debug(await navigator.mediaDevices.getSupportedConstraints());
@@ -136,6 +131,58 @@ async function JsSIPTestVideo() {
     } else {
         // Avoid using this in new browsers, as it is going away.
         videoElement.src = URL.createObjectURL(mediaStream);
+    }
+}
+
+export const MediaDeviceUpdate = async function (mediaKind, mediaDevice) {
+    console.debug(`MediaDeviceUpdate => ${mediaKind} :: ${mediaDevice}`);
+    switch (mediaKind) {
+        case 'audiooutput': {
+            AttachSinkId(mediaDevice); break;
+        }
+        case 'videoinput': {
+            let videoElement = document.getElementById(mediaSelfElementID);
+            if (!videoElement) {
+                videoElement = document.createElement('video');
+                videoElement.id = mediaSelfElementID;
+                document.body.appendChild(videoElement);
+            }
+
+            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: mediaDevice } } });
+
+            if ('srcObject' in videoElement) {
+                videoElement.srcObject = mediaStream;
+            } else {
+                // Avoid using this in new browsers, as it is going away.
+                videoElement.src = URL.createObjectURL(mediaStream);
+            }
+            break;
+        }
+    }
+}
+
+/** Indica se o navegador suporte a escolha do dispositivo para saída de áudio */
+export const BrowserOutputSelectSupport = function () { return !('sinkId' in HTMLMediaElement.prototype); };
+
+/** Attach audio output device to video element using device/sink ID. */
+export const AttachSinkId = function (sinkId) {
+    const element = document.getElementById(audioRemoteElementID);
+    if (typeof element.sinkId !== 'undefined') {
+        element.setSinkId(sinkId)
+            .then(() => {
+                console.log(`Success, audio output device attached: ${sinkId}`);
+            })
+            .catch(error => {
+                let errorMessage = error;
+                if (error.name === 'SecurityError') {
+                    errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
+                }
+                console.error(errorMessage);
+                // Jump back to first output device in the list as it's the default.
+                audioOutputSelect.selectedIndex = 0;
+            });
+    } else {
+        console.warn('Browser does not support output device selection.');
     }
 }
 
