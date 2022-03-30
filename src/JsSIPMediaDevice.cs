@@ -22,7 +22,7 @@ namespace Sufficit.Telephony.JsSIP
         public string Label { get; set; }
 
         [JsonPropertyName("kind")]
-        public string Kind { get; set; }
+        public string? Kind { get; set; }
 
         //[JsonPropertyName("kind")]
         //public JsSIPMediaDeviceKind Kind { get; set; }
