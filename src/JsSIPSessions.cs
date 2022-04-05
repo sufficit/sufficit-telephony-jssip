@@ -16,7 +16,7 @@ namespace Sufficit.Telephony.JsSIP
         /// </summary>
         const string logPrepend = "JsSIP Blazor (Sessions),";
 
-        public const string JsSIPScriptFile = "./_content/SufficitTelephonyJsSIP/jssip-sessions.min.js";
+        public const string JsSIPScriptFile = "./_content/Sufficit.Telephony.JsSIP/jssip-sessions.min.js";
 
         private readonly object _lock;
         private readonly List<JsSIPSession> _sessions;

@@ -16,6 +16,8 @@ namespace Sufficit.Telephony.JsSIP
             this.Password = string.Empty;  
             this.UserAgent = "Sufficit WebRTC Phone";
             this.Sockets = new string[]{ };
+            this.TraceSip = false;
+            this.StunServers = new string[] { };
         }
 
         [JsonPropertyName("uri")]
@@ -30,6 +32,14 @@ namespace Sufficit.Telephony.JsSIP
         [JsonPropertyName("sockets")]
         public string[] Sockets { get; set; }
 
+        // Optional
+
+        [JsonPropertyName("traceSip")]
+        public bool TraceSip { get; set; }
+
+        [JsonPropertyName("stunServers")]
+        public string[] StunServers { get; set; }
+
         /*
          
          // optional configurations
@@ -38,8 +48,6 @@ namespace Sufficit.Telephony.JsSIP
     rel100: 'supported',
     registerExpires: null,
     noAnswerTimeout: null,
-    traceSip: true,
-    stunServers: null,
     turnServers: null,
     usePreloadedRoute: null,
     connectionRecoveryMinInterval: null,
