@@ -134,6 +134,10 @@ namespace Sufficit.Telephony.JsSIP
         public async Task Start(JsSIPOptions? options = null)
         {
             if (options != null) _options = options;
+
+            if (!_options.Sockets.Any())
+                throw new Exception("none valid socket configured");
+
             await (await JSContext()).InvokeVoidAsync("onJsSIPLoaded", _options);
         }
 

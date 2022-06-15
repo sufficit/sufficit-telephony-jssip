@@ -9,7 +9,7 @@ namespace Sufficit.Telephony.JsSIP
 {
     public class JsSIPOptions
     {
-        public const string SectionName = "Sufficit:JsSIP";
+        public const string SECTIONNAME = "Sufficit:JsSIP";
         public JsSIPOptions()
         {
             this.Uri = string.Empty;
