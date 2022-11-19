@@ -5,11 +5,10 @@
 			IncludeGeneratedStaticFiles;
 			$(ResolveStaticWebAssetsInputsDependsOn)
 		</ResolveStaticWebAssetsInputsDependsOn>
-		<Configurations>Debug;Release;Packing</Configurations>
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<RootNamespace>Sufficit.Telephony.JsSIP</RootNamespace>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
@@ -93,14 +92,14 @@
 	</ItemGroup>	
 	
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="6.0.10" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="7.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.0" />
 		<PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.2" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
-		<PackageReference Include="Microsoft.JSInterop" Version="6.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
+		<PackageReference Include="Microsoft.JSInterop" Version="7.0.0" />
 	</ItemGroup>
 		
   <ItemGroup>

@@ -16,12 +16,35 @@ export function GetStatus() {
  */
 export const Reference = async function(jssip, dotNetObjectRef) {
     DotNetObjectReference = dotNetObjectRef;
-    let JsSIP = await new Promise(resolve => {
-        require([jssip], function (JsSIP) { resolve(JsSIP); });
-    });
+    if (!window.JsSIP) {
 
-    window.JsSIP = JsSIP;
-    await dotNetObjectRef.invokeMethodAsync('onDependenciesLoaded', JsSIP);
+        const el = document.getElementById('jssip');
+        if (!el) {
+            window.JsSIPLoading = await new Promise(resolve => {
+                console.debug("resolving: ", jssip);
+                CreateScriptTag(jssip, () => resolve(window.JsSIP), document.body);
+            });
+        } else {
+            await window.JsSIPLoading;
+        }
+    }
+
+    await dotNetObjectRef.invokeMethodAsync('onDependenciesLoaded', window.JsSIP);
+}
+
+export const CreateScriptTag = function (url, implementationCode, location) {
+    //url is URL of external file, implementationCode is the code
+    //to be called from the file, location is the location to 
+    //insert the <script> element
+
+    var scriptTag = document.createElement('script');
+    scriptTag.id = 'jssip'; // avoid duplicate tag
+    scriptTag.src = url;
+
+    scriptTag.onload = implementationCode;
+    scriptTag.onreadystatechange = implementationCode;
+
+    location.appendChild(scriptTag);
 }
 
 /**

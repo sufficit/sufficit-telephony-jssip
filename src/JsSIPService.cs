@@ -15,8 +15,9 @@ namespace Sufficit.Telephony.JsSIP
         /// </summary>
         const string logPrepend = "JsSIP Blazor (Service),";
 
-        public const string JsSIPBaseFile = "./_content/Sufficit.Telephony.JsSIP/jssip-3.9.0.min.js";
-        public const string JsSIPScriptFile = "./_content/Sufficit.Telephony.JsSIP/jssip-service.min.js";
+        private const string JsSIPNamespace = $"{nameof(Sufficit)}.{nameof(Sufficit.Telephony)}.{nameof(Sufficit.Telephony.JsSIP)}";
+        public const string JsSIPBaseFile = $"./_content/{JsSIPNamespace}/jssip-3.9.0.min.js";
+        public const string JsSIPScriptFile = $"./_content/{JsSIPNamespace}/jssip-service.min.js";
 
         private readonly ILogger _logger;
         private readonly IJSRuntime _jSRuntime;
