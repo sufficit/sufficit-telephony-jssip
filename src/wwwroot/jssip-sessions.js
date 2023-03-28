@@ -11,7 +11,7 @@ export function Reference(dotNetObjectRef) { DotNetObjectReference = dotNetObjec
  * @param {any} JsSIPSession
  */
 export function onJsSIPSession(JsSIPSession) {
-    //console.debug(`onJsSIPSession: `, JsSIPSession); return;
+    console.debug(`onJsSIPSession: `, JsSIPSession);
     const session = WebPhone._sessions[JsSIPSession.id];    
     
     session.on('newDTMF', e => dispatchSessionEvent(session, 'newDTMF', e));

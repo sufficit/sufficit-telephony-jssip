@@ -3,6 +3,7 @@ using Sufficit.Telephony.JsSIP.Events;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Sufficit.Telephony.JsSIP
@@ -11,7 +12,7 @@ namespace Sufficit.Telephony.JsSIP
     {
         public JsSIPSession()
         {
-            this.Cause = string.Empty;
+
         }
 
         public JsSIPSession(JsSIPSessionInfo info) : this()
@@ -24,7 +25,9 @@ namespace Sufficit.Telephony.JsSIP
         /// <summary>
         /// Motivo da finalização da seção
         /// </summary>
-        public string Cause { get; internal set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyName("cause")]
+        public string? Cause { get; internal set; }
 
         /// <summary>
         /// Momento da ultima atualização

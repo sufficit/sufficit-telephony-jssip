@@ -6,6 +6,8 @@ using Sufficit.Telephony.JsSIP.Extensions;
 using Sufficit.Telephony.JsSIP.Methods;
 using System;
 using System.Text.Json;
+using static Sufficit.Telephony.JsSIP.JsSIPGlobals;
+
 
 namespace Sufficit.Telephony.JsSIP
 {
@@ -16,10 +18,13 @@ namespace Sufficit.Telephony.JsSIP
         /// </summary>
         const string logPrepend = "JsSIP Blazor (Service),";
 
-        private const string JsSIPFile = "jssip-3.9.0.min.js";
-        private const string JsSIPNamespace = $"{nameof(Sufficit)}.{nameof(Sufficit.Telephony)}.{nameof(Sufficit.Telephony.JsSIP)}";
-        public const string JsSIPFullPath = $"./_content/{JsSIPNamespace}/{JsSIPFile}";
-        public const string JsSIPScriptFile = $"./_content/{JsSIPNamespace}/jssip-service.min.js";
+        const string JsSIPFile = "jssip-3.9.0.min.js";
+        const string JsSIPFullPath = $"./_content/{JsSIPNamespace}/{JsSIPFile}";
+#if DEBUG
+        const string JsSIPScriptFile = $"./_content/{JsSIPNamespace}/jssip-service.js";
+#else
+        const string JsSIPScriptFile = $"./_content/{JsSIPNamespace}/jssip-service.min.js";
+#endif
 
         private readonly ILogger _logger;
         private readonly IJSRuntime _jSRuntime;
@@ -296,7 +301,7 @@ namespace Sufficit.Telephony.JsSIP
         /// <returns></returns>
         public async Task<IEnumerable<JsSIPMediaDevice>> MediaDevices()
         {
-            return await (await JSContext()).InvokeAsync<IEnumerable<JsSIPMediaDevice>>("MediaDevices");
+            return await (await JSContext()).InvokeAsync<IEnumerable<JsSIPMediaDevice>>(nameof(MediaDevices));
         }
 
         public async Task<TestDevicesResponse> TestDevices(TestDevicesRequest request)
