@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using Sufficit.Telephony.JsSIP.Events;
 using Sufficit.Telephony.JsSIP.Extensions;
+using Sufficit.Telephony.JsSIP.Methods;
 using System;
 using System.Text.Json;
 
@@ -15,8 +16,9 @@ namespace Sufficit.Telephony.JsSIP
         /// </summary>
         const string logPrepend = "JsSIP Blazor (Service),";
 
+        private const string JsSIPFile = "jssip-3.9.0.min.js";
         private const string JsSIPNamespace = $"{nameof(Sufficit)}.{nameof(Sufficit.Telephony)}.{nameof(Sufficit.Telephony.JsSIP)}";
-        public const string JsSIPBaseFile = $"./_content/{JsSIPNamespace}/jssip-3.9.0.min.js";
+        public const string JsSIPFullPath = $"./_content/{JsSIPNamespace}/{JsSIPFile}";
         public const string JsSIPScriptFile = $"./_content/{JsSIPNamespace}/jssip-service.min.js";
 
         private readonly ILogger _logger;
@@ -35,7 +37,7 @@ namespace Sufficit.Telephony.JsSIP
                 if (_context == null)
                 {
                     _context = await _jSRuntime.InvokeAsync<IJSObjectReference>("import", JsSIPScriptFile);
-                    await _context.InvokeVoidAsync("Reference", JsSIPBaseFile, _reference);
+                    await _context.InvokeVoidAsync("Reference", JsSIPFullPath, _reference);
                 }
             }
             finally
@@ -47,6 +49,7 @@ namespace Sufficit.Telephony.JsSIP
         }
 
         public event EventHandler? OnChanged;
+
         public JsSIPSessions Sessions { get; }
 
         /// <summary>
@@ -296,9 +299,9 @@ namespace Sufficit.Telephony.JsSIP
             return await (await JSContext()).InvokeAsync<IEnumerable<JsSIPMediaDevice>>("MediaDevices");
         }
 
-        public async Task TestDevices()
+        public async Task<TestDevicesResponse> TestDevices(TestDevicesRequest request)
         {
-            await (await JSContext()).InvokeVoidAsync("TestDevices");            
+            return await (await JSContext()).InvokeAsync<TestDevicesResponse>(nameof(TestDevices), request);           
         }
 
         private async void Devices_OnChanged(object? sender, EventArgs e)

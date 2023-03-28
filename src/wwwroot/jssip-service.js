@@ -121,15 +121,24 @@ function JsSIPSessionToJson() {
     return result;
 }
 
-export function TestDevices() {
-    console.debug("Testing Devices");
-    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-    navigator.getUserMedia({
-        audio: true,
-        video: true
-    }, function () { console.debug('Testing Devices: success'); }, function () { console.debug('Testing Devices: error'); });
+export const TestDevices = async function (request) {
+    console.debug("testing devices request: {0}", request);
+    let success = false;
+    let message;
+    
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.mediaDevices.getUserMedia;
+    const method = new Promise(function (success, reject) {
+        navigator.getUserMedia(request, success, reject);
+    });
 
-    //MediaDevices();
+    const response = await method.then(() => success = true).catch((ex) => message = `(${ex.code}) ${ex.name} => ${ex.message}`);
+    console.debug("response: ", response);
+
+    return {
+        request: request,
+        success: success,
+        message: message
+    };
 }
 
 async function JsSIPTestVideo() {
