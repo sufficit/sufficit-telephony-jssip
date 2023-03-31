@@ -150,27 +150,28 @@ export function JsSIPSessionActions(info, action, args) {
             // expected output: "Mangoes and papayas are $2.79 a pound."
             break;
         default:
-            console.log(`Sorry, we are out of ${action}.`);
+            console.log(`sorry, we are out of ${action}.`);
+            break;
     }
 }
 
 /**
  * Originate a call session
  * @param {any} uri
- * @param {any} arguments
+ * @param {any} args
  */
-export const Originate = function (uri, arguments) {
-    WebPhone.call(uri, arguments);
+export const Originate = async function (uri, args) {
+    WebPhone.call(uri, args);
 }
 
 /**
  * Answer a call session
  * @param {any} sessionId
- * @param {any} arguments
+ * @param {any} args
  */
-export const Answer = function (sessionId, arguments) {
+export const Answer = async function (sessionId, args) {
     const session = WebPhone._sessions[sessionId];
-    session.answer(arguments);
+    session.answer(args);
 }
 
 //#endregion

@@ -10,6 +10,7 @@ namespace Sufficit.Telephony.JsSIP.Events
     public class AnswerEventArgs
     {
         [JsonPropertyName("mediaConstraints")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public MediaConstraints? MediaConstraints { get; set; }
 
 

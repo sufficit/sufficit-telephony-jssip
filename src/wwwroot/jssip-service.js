@@ -1,5 +1,7 @@
 ﻿export var WebPhone;
 export var DotNetObjectReference;
+var AccountReference;
+
 
 let mediaSelfElementID = 'media-player-self';
 let audioRemoteElementID = 'audio-player-remote';
@@ -14,8 +16,9 @@ export function GetStatus() {
  * Saving dotnet object reference for service
  * @param {any} dotNetObjectRef
  */
-export const Reference = async function(jssip, dotNetObjectRef) {
+export const Reference = async function(jssip, dotNetObjectRef, accountRef) {
     DotNetObjectReference = dotNetObjectRef;
+    AccountReference = accountRef;
     if (!window.JsSIP) {
 
         const el = document.getElementById('jssip');
@@ -66,16 +69,16 @@ export function onJsSIPLoaded(config) {
     // Criando softphone padrão
     WebPhone = new JsSIP.UA(config);
 
-    // Exposing WebPhone for Debug, insecure , dont problem
+    // Exposing WebPhone for Debug, insecure, dont be panic about that
     window.WebPhone = WebPhone;
 
     // Vinculando eventos
     WebPhone.on('connected',            WPEvent.bind(this, 'onConnected'));
     WebPhone.on('disconnected',         WPEvent.bind(this, 'onDisconnected'));
     WebPhone.on('newMessage',           WPEvent.bind(this, 'onNewMessage'));
-    WebPhone.on('registered',           WPEvent.bind(this, 'onRegistered'));
-    WebPhone.on('unregistered',         WPEvent.bind(this, 'onUnregistered'));
-    WebPhone.on('registrationFailed',   WPEvent.bind(this, 'onRegistrationFailed'));
+    WebPhone.on('registered',           WPEvent.bind(this, 'NotifyRegistered'));
+    WebPhone.on('unregistered',         WPEvent.bind(this, 'NotifyUnregistered'));
+    WebPhone.on('registrationFailed',   WPEvent.bind(this, 'NotifyRegistrationFailed'));
     WebPhone.on('ringing',              WPEvent.bind(this, 'onRinging'));
     WebPhone.on('ack',                  WPEvent.bind(this, 'onAck'));    
     WebPhone.on('newRTCSession',        WPEvent.bind(this, 'onNewRTCSession'));
@@ -103,6 +106,10 @@ function WPEvent(mappedEvent, data) {
         case "onDisconnected": {
             console.debug(data);
             break;
+        }
+        case "NotifyRegistered": case "NotifyUnregistered": case "NotifyRegistrationFailed": {
+            AccountReference.invokeMethodAsync(mappedEvent, data);
+            return;
         }
         default: break;
     }

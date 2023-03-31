@@ -1,17 +1,19 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
+using Sufficit.Telephony.JsSIP.Accounts;
 using Sufficit.Telephony.JsSIP.Events;
 using Sufficit.Telephony.JsSIP.Extensions;
 using Sufficit.Telephony.JsSIP.Methods;
 using System;
+using System.Security.Principal;
 using System.Text.Json;
 using static Sufficit.Telephony.JsSIP.JsSIPGlobals;
 
 
 namespace Sufficit.Telephony.JsSIP
 {
-    public class JsSIPService 
+    public class JsSIPService
     {
         /// <summary>
         /// Informativo to prepend msg logs
@@ -29,7 +31,6 @@ namespace Sufficit.Telephony.JsSIP
         private readonly ILogger _logger;
         private readonly IJSRuntime _jSRuntime;
         private readonly List<string> _jsLogs;
-        private readonly DotNetObjectReference<JsSIPService> _reference; 
         private readonly SemaphoreSlim _semaphore;
         private JsSIPOptions _options;
 
@@ -42,7 +43,9 @@ namespace Sufficit.Telephony.JsSIP
                 if (_context == null)
                 {
                     _context = await _jSRuntime.InvokeAsync<IJSObjectReference>("import", JsSIPScriptFile);
-                    await _context.InvokeVoidAsync("Reference", JsSIPFullPath, _reference);
+                    var accountReference = DotNetObjectReference.Create(Account);
+                    var serviceReference = DotNetObjectReference.Create(this);
+                    await _context.InvokeVoidAsync("Reference", JsSIPFullPath, serviceReference, accountReference);
                 }
             }
             finally
@@ -52,6 +55,11 @@ namespace Sufficit.Telephony.JsSIP
 
             return _context;
         }
+
+        /// <summary>
+        /// Is WebSocket Connected
+        /// </summary>
+        public bool IsConnected { get; protected set; }
 
         public event EventHandler? OnChanged;
 
@@ -67,18 +75,24 @@ namespace Sufficit.Telephony.JsSIP
         /// </summary>
         public MediaDeviceGroup Devices { get; }
 
+        /// <summary>
+        /// Default sip account
+        /// </summary>
+        public JsSIPAccount Account { get; }
+
         public JsSIPService(IOptions<JsSIPOptions> options, JsSIPSessions sessions, ILogger<JsSIPService> logger, IJSRuntime JSRuntime)
         {
             _options = options.Value;
             _logger = logger;
             _jSRuntime = JSRuntime;
 
+            Account = new JsSIPAccount();
+
             Sessions = sessions;
             Sessions.OnChanged += NotifyChanged;
 
             _semaphore = new SemaphoreSlim(1, 1);
             _jsLogs = new List<string>();
-            _reference = DotNetObjectReference.Create(this);
             Status = string.Empty;
 
             Devices = new MediaDeviceGroup();
@@ -208,31 +222,34 @@ namespace Sufficit.Telephony.JsSIP
             }
         }
 
+        /*
+         
         [JSInvokable]
-        public async Task onRegistered(JsonElement args)
+        async void onRegistered(JsonElement args)
         {
             await Task.Yield();
             if (args.ValueKind != JsonValueKind.Undefined && args.ValueKind != JsonValueKind.Null)
             {
-                _logger?.LogTrace($"{ logPrepend } onRegistered: { args.GetRawText() }");
-                _logger?.LogInformation($"{ logPrepend } registered event");
+                _logger.LogTrace($"{ logPrepend } onRegistered: { args.GetRawText() }");
+                _logger.LogInformation($"{ logPrepend } registered event");
 
                 NotifyChanged();
             }
         }
 
         [JSInvokable]
-        public async Task onUnregistered(JsonElement args)
+        async void onUnregistered(JsonElement args)
         {
             await Task.Yield();
             if (args.ValueKind != JsonValueKind.Undefined && args.ValueKind != JsonValueKind.Null)
             {
-                _logger?.LogTrace($"{ logPrepend } onUnregistered: { args.GetRawText() }");
-                _logger?.LogInformation($"{ logPrepend } unregistered event");
+                _logger.LogDebug($"{ logPrepend } onUnregistered: { args.GetRawText() }");
+                _logger.LogInformation($"{ logPrepend } unregistered event");
 
                 NotifyChanged();
             }
         }
+
 
         [JSInvokable]
         public async Task onRegistrationFailed(JsonElement args)
@@ -240,12 +257,14 @@ namespace Sufficit.Telephony.JsSIP
             await Task.Yield();
             if (args.ValueKind != JsonValueKind.Undefined && args.ValueKind != JsonValueKind.Null)
             {
-                _logger?.LogTrace($"{ logPrepend } onRegistrationFailed: { args.GetRawText() }");
-                _logger?.LogInformation($"{ logPrepend } registration failed event");
+                _logger.LogDebug($"{ logPrepend } onRegistrationFailed: { args.GetRawText() }");
+                _logger.LogInformation($"{ logPrepend } registration failed event");
 
                 NotifyChanged();
             }
         }
+
+        */
 
         [JSInvokable]
         public async Task onRinging(JsonElement args)
