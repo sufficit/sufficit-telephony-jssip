@@ -38,7 +38,7 @@ namespace Sufficit.Telephony.JsSIP.Accounts
             if (int.TryParse(expirationValue, out int expiration))
                 Expiration = DateTime.UtcNow.AddSeconds(expiration);
 
-            Console.WriteLine($"onRegistered: valid until => {Expiration:o}");
+            //Console.WriteLine($"onRegistered: valid until => {Expiration:o}");
 
             var args = new AccountChangedEventArgs();
             args.Event = AccountChangedEvent.RegistrationChanged;
@@ -56,7 +56,7 @@ namespace Sufficit.Telephony.JsSIP.Accounts
         public void NotifyUnregistered(JsonElement _)
         {
             LastRegistration = (DateTime.UtcNow, "unregistered");
-            Console.WriteLine("onUnregistered");
+            // Console.WriteLine("onUnregistered");
 
             var args = new AccountChangedEventArgs();
             args.Event = AccountChangedEvent.RegistrationChanged;
@@ -73,7 +73,7 @@ namespace Sufficit.Telephony.JsSIP.Accounts
         [JSInvokable]
         public void NotifyRegistrationFailed(JsonElement @event)
         {
-            Console.WriteLine($"onRegistrationFailed: {@event.GetRawText()}");
+            // Console.WriteLine($"onRegistrationFailed: {@event.GetRawText()}");
             LastRegistration = (DateTime.UtcNow, "fail");
 
             var args = new AccountChangedEventArgs();

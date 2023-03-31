@@ -87,6 +87,7 @@ namespace Sufficit.Telephony.JsSIP
             _jSRuntime = JSRuntime;
 
             Account = new JsSIPAccount();
+            Account.OnChanged += OnAccountChanged;
 
             Sessions = sessions;
             Sessions.OnChanged += NotifyChanged;
@@ -99,20 +100,39 @@ namespace Sufficit.Telephony.JsSIP
             Devices.OnChanged += Devices_OnChanged;
         }
 
+        private void OnAccountChanged(object? sender, AccountChangedEventArgs e)
+        {
+            _logger.LogDebug("account changed: {status}", e.Event);
+            NotifyChanged();
+        }
+
+        public async Task<string> GetStatus()
+        {
+            var socketStatus = await GetWebSocketStatus();
+            if (socketStatus == JsSIPWebSocketStatus.STATUS_READY)
+            {
+                if (Account.IsRegistered)
+                    return "SOCKET READY AND REGISTERED";
+                else
+                    return "SOCKET READY BUT UNREGISTERED";                
+            }
+            return "SOCKET NOT CONNECTED";
+        }
+
         private void NotifyChanged() => NotifyChanged(this, EventArgs.Empty);
         private async void NotifyChanged(object? sender, EventArgs e)
         {
-            Status = (await GetStatus()).ToString();
+            Status = await GetStatus();
             OnChanged?.Invoke(this, EventArgs.Empty);
         }
 
+
         public IEnumerable<string> JSLogs => _jsLogs;
 
-
-        public async Task<JsSIPServiceStatus> GetStatus()
+        public async Task<JsSIPWebSocketStatus> GetWebSocketStatus()
         {
             var response = await (await JSContext()).InvokeAsync<int>("GetStatus");
-            return (JsSIPServiceStatus)response;
+            return (JsSIPWebSocketStatus)response;
         }
 
         #region EVENTS CALLS FROM JAVASCRIPT
