@@ -109,7 +109,7 @@ function WPEvent(mappedEvent, data) {
         }
         case "NotifyRegistered": case "NotifyUnregistered": case "NotifyRegistrationFailed": {
             AccountReference.invokeMethodAsync(mappedEvent, data);
-            return;
+            return undefined;
         }
         default: break;
     }
@@ -153,7 +153,8 @@ async function JsSIPTestVideo() {
     console.debug(await navigator.mediaDevices.getSupportedConstraints());
 
     Testtt();
-    return;
+    return undefined;
+
     //return;
     const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
 
@@ -216,6 +217,7 @@ export const AttachSinkId = function (sinkId) {
                 if (error.name === 'SecurityError') {
                     errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
                 }
+
                 console.error(errorMessage);
                 // Jump back to first output device in the list as it's the default.
                 audioOutputSelect.selectedIndex = 0;
@@ -259,7 +261,7 @@ async function Testtt() {
 export const MediaDevices = async function () {
     if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
         console.warn("enumerateDevices() not supported.");
-        return;
+        return undefined;
     }
 
     return await new Promise(resolve => {

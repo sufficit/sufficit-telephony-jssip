@@ -51,6 +51,11 @@
 		<PackageIcon>icon.png</PackageIcon>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Content Remove="wwwroot\jssip-service.js" />
+	  <Content Remove="wwwroot\jssip-sessions.js" />
+	</ItemGroup>
+
 	<ItemGroup Label="Sufficit Pacote NUGET Itens">
 		<None Include="../icon.png">
 			<Pack>True</Pack>
@@ -65,7 +70,7 @@
 			<PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
-	
+
 	<Target Name="IncludeGeneratedStaticFiles">
 		<ItemGroup>
 			<Content Include="wwwroot/jssip-3.9.0.min.js" />
@@ -73,18 +78,19 @@
 			<Content Include="wwwroot/jssip-sessions.min.js" />
 		</ItemGroup>
 	</Target>
-		
+
 	<ItemGroup>
-	  <Content Remove="bundleconfig.json" />
-	  <Content Remove="wwwroot\jssip-service.js" />
-	  <Content Remove="wwwroot\jssip-sessions.js" />
-	</ItemGroup>
-		
-	<ItemGroup>
-	  <None Include="bundleconfig.json" />
-	  <None Include="wwwroot\jssip-sessions.js">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	  </None>
+		<None Include="wwwroot\jssip-service.js" />
+		<None Include="wwwroot\jssip-sessions.js" />
+		<Content Update="wwwroot\jssip-3.9.0.min.js">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\jssip-service.min.js">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\jssip-sessions.min.js">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -100,24 +106,6 @@
 		<PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
 		<PackageReference Include="Microsoft.JSInterop" Version="7.0.4" />
-	</ItemGroup>
-		
-  <ItemGroup>
-    <None Include="wwwroot\jssip-service.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-		
-  <ItemGroup>
-    <Content Update="wwwroot\jssip-3.8.2.min.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
-    <Content Update="wwwroot\jssip-service.min.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
-    <Content Update="wwwroot\jssip-sessions.min.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-	
+	</ItemGroup>	
+			
 </Project>
