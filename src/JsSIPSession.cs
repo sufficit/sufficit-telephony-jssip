@@ -17,7 +17,7 @@ namespace Sufficit.Telephony.JsSIP
 
         public JsSIPSession(JsSIPSessionInfo info) : this()
         {
-            this.ID = info.ID;
+            this.Id = info.Id;
             this.Direction = info.Direction;
             this.Status = info.Status;
         }

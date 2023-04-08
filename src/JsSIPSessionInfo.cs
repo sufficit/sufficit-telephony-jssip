@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Sufficit.Telephony.JsSIP
 {
@@ -11,26 +11,23 @@ namespace Sufficit.Telephony.JsSIP
     /// </summary>
     public class JsSIPSessionInfo
     {
-        public JsSIPSessionInfo()
-        {
-            ID = string.Empty;
-            Direction = string.Empty;
-            Status = JsSIPSessionStatus.STATUS_NULL;
-        }
-
         /// <summary>
         /// Identificador único
         /// </summary>
-        public string ID { get; set; }
+        [JsonPropertyName("id")]
+        public string Id { get; set; } = default!;
 
         /// <summary>
         /// Direção da seção, Entrada ou Saída
         /// </summary>
-        public string Direction { get; set; }
+        [JsonPropertyName("direction")]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public JsSIPSessionDirection Direction { get; set; }
 
         /// <summary>
         /// Estado atual da seção
         /// </summary>
+        [JsonPropertyName("status")]
         public JsSIPSessionStatus Status { get; set; }
     }
 }

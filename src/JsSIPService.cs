@@ -223,7 +223,7 @@ namespace Sufficit.Telephony.JsSIP
         [JSInvokable]
         public async Task onNewRTCSession(JsSIPSessionInfo info)
         {
-            _logger?.LogInformation($"{ logPrepend } new rtc session event, id: ({ info.ID })");
+            _logger?.LogInformation($"{ logPrepend } new rtc session event, id: ({info.Id})");
 
             var session = new JsSIPSession(info);
             await Sessions.Append(session);            
@@ -319,7 +319,7 @@ namespace Sufficit.Telephony.JsSIP
         /// </summary>
         /// <param name="session"></param>
         /// <returns></returns>
-        public async Task Call(string uri, bool video = true)
+        public async Task<JsSIPSessionInfo> Call(string uri, bool video = true)
         {
             var mediaConstraints = new MediaConstraints();
             if(!string.IsNullOrWhiteSpace(Devices.AudioInput))
@@ -331,7 +331,13 @@ namespace Sufficit.Telephony.JsSIP
                 else mediaConstraints.Video = new MediaOptions(true);
             }
 
-            await Sessions.Originate(uri, mediaConstraints);
+            return await Sessions.Originate(uri, mediaConstraints);
+        }
+
+        public async Task<JsSIPSessionMonitor> CallMonitor(string uri, bool video = true)
+        {
+            var info = await Call(uri, video);
+            return await Sessions.Monitor(info.Id);
         }
 
         /// <summary>

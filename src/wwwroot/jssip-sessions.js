@@ -37,6 +37,41 @@ export function onJsSIPSession(JsSIPSession) {
     //session.on('peerconnection:createofferfailed', e => dispatchSessionEvent(session, 'peerconnection:createofferfailed', e));
 }
 
+/**
+ * Usado para vincular os eventos a uma seção recem criada
+ */
+export const Monitor = async function(id, reference) {
+    console.debug('monitor session: {id}', id);
+    const session = WebPhone._sessions[id];
+    if (!session)
+        throw "session not found";
+
+    session.on('newDTMF', e => reference.invokeMethodAsync('OnNewDTMF', e));
+    session.on('newInfo', e => reference.invokeMethodAsync('OnNewInfo', e));
+
+    session.on('hold', e => reference.invokeMethodAsync('OnHold', e));
+    session.on('muted', e => reference.invokeMethodAsync('OnMuted', e));
+    session.on('unhold', e => reference.invokeMethodAsync('OnUnhold', e));
+    session.on('unmuted', e => reference.invokeMethodAsync('OnUnmuted', e));
+
+    session.on('progress', e => reference.invokeMethodAsync('OnProgress', e));
+    session.on('accepted', e => { reference.invokeMethodAsync('OnAccepted', e); console.debug("accepted: ", session.status); });
+    session.on('succeeded', e => reference.invokeMethodAsync('OnSucceeded', e));
+    session.on('failed', e => reference.invokeMethodAsync('OnFailed', e));
+    session.on('ended', e => { reference.invokeMethodAsync('OnEnded', e); console.debug("ended: ", session.status); });
+
+    session.on('confirmed', e => { reference.invokeMethodAsync('OnConfirmed', e); console.debug("confirmed: ", session.status); });
+
+    // emitido ai iniciar uma tentativa de conexão de seção
+    session.on('connecting', e => reference.invokeMethodAsync('OnConnecting', e));
+    session.on('peerconnection', e => reference.invokeMethodAsync('OnPeerConnection', e));    
+}
+
+export const GetSession = async function (id) {
+    return WebPhone._sessions[id];
+}
+
+
 function dispatchSessionEvent(session, title, e) {
     
     if (title === 'peerconnection' || title === 'connecting') {
@@ -161,7 +196,7 @@ export function JsSIPSessionActions(info, action, args) {
  * @param {any} args
  */
 export const Originate = async function (uri, args) {
-    WebPhone.call(uri, args);
+    return WebPhone.call(uri, args);
 }
 
 /**

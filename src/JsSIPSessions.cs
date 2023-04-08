@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using static Sufficit.Telephony.JsSIP.JsSIPGlobals;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Sufficit.Telephony.JsSIP
 {
@@ -86,6 +87,21 @@ namespace Sufficit.Telephony.JsSIP
             await (await JSContext()).InvokeVoidAsync("onJsSIPSession", session);
         }
 
+        public async Task<JsSIPSessionMonitor> Monitor(string id)
+        {
+            var monitor = new JsSIPSessionMonitor(id);
+            monitor.Control = this;
+
+            await (await JSContext()).InvokeVoidAsync("Monitor", monitor.Id, monitor.GetReference());
+            return monitor;
+        }
+
+        public async Task GetSession(string id)
+        {
+            var session = await (await JSContext()).InvokeAsync<JsonElement>("GetSession", id);
+            _logger.LogInformation("session: {session}", session.GetRawText());
+        }
+
         /// <summary>
         /// Encaminha o evento de mudança
         /// </summary>
@@ -100,7 +116,7 @@ namespace Sufficit.Telephony.JsSIP
         {
             lock (_lock)
             {
-                return _sessions.Find(s => s.ID == id);
+                return _sessions.Find(s => s.Id == id);
             }
         }
 
@@ -122,10 +138,10 @@ namespace Sufficit.Telephony.JsSIP
         public async Task onPeerconnection(JsSIPSession info, JsonElement args)
         {
             await Task.Yield();
-            _logger.LogDebug($"onPeerconnection, session id: { info.ID }, args: { args.GetRawText() }");
+            _logger.LogDebug($"onPeerconnection, session id: { info.Id}, args: { args.GetRawText() }");
 
             JsSIPSession? session = null;
-            lock (_lock) session = _sessions.Find(s => s.ID == info.ID);
+            lock (_lock) session = _sessions.Find(s => s.Id == info.Id);
 
             if (session != null)
             {
@@ -139,10 +155,10 @@ namespace Sufficit.Telephony.JsSIP
         public async Task onConnecting(JsSIPSession info, JsonElement args)
         {
             await Task.Yield();
-            _logger.LogDebug($"onConnecting, session id: { info.ID }, args: { args.GetRawText() }");
+            _logger.LogDebug($"onConnecting, session id: { info.Id}, args: { args.GetRawText() }");
 
             JsSIPSession? session = null;
-            lock (_lock) session = _sessions.Find(s => s.ID == info.ID);
+            lock (_lock) session = _sessions.Find(s => s.Id == info.Id);
 
             if (session != null)
             {
@@ -156,10 +172,10 @@ namespace Sufficit.Telephony.JsSIP
         public async Task onAccepted(JsSIPSession info, JsonElement args)
         {
             await Task.Yield();
-            _logger.LogDebug($"onAccepted, session id: { info.ID }, args: { args.GetRawText() }");
+            _logger.LogDebug($"onAccepted, session id: { info.Id}, args: { args.GetRawText() }");
 
             JsSIPSession? session = null;
-            lock (_lock) session = _sessions.Find(s => s.ID == info.ID);
+            lock (_lock) session = _sessions.Find(s => s.Id == info.Id);
 
             if (session != null)
             {
@@ -173,10 +189,10 @@ namespace Sufficit.Telephony.JsSIP
         public async Task onFailed(JsSIPSession info, FailedSessionEventArgs args)
         {
             await Task.Yield();
-            _logger.LogDebug($"onFailed, session id: { info.ID }, args: { args.ToJsonString() }");
+            _logger.LogDebug($"onFailed, session id: { info.Id}, args: { args.ToJsonString() }");
 
             JsSIPSession? session = null;
-            lock (_lock) session = _sessions.Find(s => s.ID == info.ID);
+            lock (_lock) session = _sessions.Find(s => s.Id == info.Id);
             
             if (session != null)
             {
@@ -187,13 +203,13 @@ namespace Sufficit.Telephony.JsSIP
         }
 
         [JSInvokable]
-        public async Task onEnded(JsSIPSession info, FailedSessionEventArgs args)
+        public async Task onEnded(JsSIPSession info, JsonElement args)
         {
             await Task.Yield();
-            _logger.LogDebug($"onEnded, session id: { info.ID }, args: { args.ToJsonString() }");
+            _logger.LogDebug($"onEnded, session id: { info.Id}, args: {args.GetRawText()}");
 
             JsSIPSession? session = null;
-            lock (_lock) session = _sessions.Find(s => s.ID == info.ID);
+            lock (_lock) session = _sessions.Find(s => s.Id == info.Id);
 
             if (session != null)
             {
@@ -204,13 +220,13 @@ namespace Sufficit.Telephony.JsSIP
         }
 
         [JSInvokable]
-        public async Task onConfirmed(JsSIPSession info, FailedSessionEventArgs args)
+        public async Task onConfirmed(JsSIPSession info, JsonElement args)
         {
             await Task.Yield();
-            _logger.LogDebug($"onConfirmed, session id: { info.ID }, args: { args.ToJsonString() }");
+            _logger.LogDebug($"onConfirmed, session id: { info.Id}, args: {args.GetRawText()}");
 
             JsSIPSession? session = null;
-            lock (_lock) session = _sessions.Find(s => s.ID == info.ID);
+            lock (_lock) session = _sessions.Find(s => s.Id == info.Id);
 
             if (session != null)
             {
@@ -224,10 +240,10 @@ namespace Sufficit.Telephony.JsSIP
         public async Task onMuted(JsSIPSession info, JsonElement args)
         {
             await Task.Yield();
-            _logger.LogDebug($"onMuted, session id: { info.ID }, args: { args.GetRawText() }");
+            _logger.LogDebug($"onMuted, session id: { info.Id}, args: { args.GetRawText() }");
 
             JsSIPSession? session = null;
-            lock (_lock) session = _sessions.Find(s => s.ID == info.ID);
+            lock (_lock) session = _sessions.Find(s => s.Id == info.Id);
 
             if (session != null)
             {
@@ -241,10 +257,10 @@ namespace Sufficit.Telephony.JsSIP
         public async Task onUnmuted(JsSIPSession info, JsonElement args)
         {
             await Task.Yield();
-            _logger.LogDebug($"onUnmuted, session id: { info.ID }, args: { args.GetRawText() }");
+            _logger.LogDebug($"onUnmuted, session id: { info.Id}, args: { args.GetRawText() }");
 
             JsSIPSession? session = null;
-            lock (_lock) session = _sessions.Find(s => s.ID == info.ID);
+            lock (_lock) session = _sessions.Find(s => s.Id == info.Id);
 
             if (session != null)
             {
@@ -258,10 +274,10 @@ namespace Sufficit.Telephony.JsSIP
         public async Task onHold(JsSIPSession info, JsonElement args)
         {
             await Task.Yield();
-            _logger.LogDebug($"onHold, session id: { info.ID }, args: { args.GetRawText() }");
+            _logger.LogDebug($"onHold, session id: { info.Id}, args: { args.GetRawText() }");
 
             JsSIPSession? session = null;
-            lock (_lock) session = _sessions.Find(s => s.ID == info.ID);
+            lock (_lock) session = _sessions.Find(s => s.Id == info.Id);
 
             if (session != null)
             {
@@ -275,10 +291,10 @@ namespace Sufficit.Telephony.JsSIP
         public async Task onUnhold(JsSIPSession info, JsonElement args)
         {
             await Task.Yield();
-            _logger.LogDebug($"onUnhold, session id: { info.ID }, args: { args.GetRawText() }");
+            _logger.LogDebug($"onUnhold, session id: { info.Id}, args: { args.GetRawText() }");
 
             JsSIPSession? session = null;
-            lock (_lock) session = _sessions.Find(s => s.ID == info.ID);
+            lock (_lock) session = _sessions.Find(s => s.Id == info.Id);
 
             if (session != null)
             {
@@ -292,10 +308,10 @@ namespace Sufficit.Telephony.JsSIP
         public async Task onProgress(JsSIPSession info, JsonElement args)
         {
             await Task.Yield();
-            _logger.LogDebug($"onProgress, session id: { info.ID }, args: { args.GetRawText() }");
+            _logger.LogDebug($"onProgress, session id: { info.Id}, args: { args.GetRawText() }");
 
             JsSIPSession? session = null;
-            lock (_lock) session = _sessions.Find(s => s.ID == info.ID);
+            lock (_lock) session = _sessions.Find(s => s.Id == info.Id);
 
             if (session != null)
             {
@@ -318,13 +334,13 @@ namespace Sufficit.Telephony.JsSIP
         /// <returns></returns>
         public async Task Action(JsSIPSessionInfo session)
         {
-            _logger.LogTrace($"{logPrepend} JsSIPService Action({DateTime.Now}): SessionID: {session.ID}");
+            _logger.LogTrace($"{logPrepend} JsSIPService Action({DateTime.Now}): SessionID: {session.Id}");
             await (await JSContext()).InvokeVoidAsync(JSSIPSESSIONACTIONSFUNC, session, "Papayas");
         }
 
         public async Task Answer(JsSIPSessionInfo session, bool video = false)
         {
-            _logger.LogTrace($"{logPrepend} JsSIPService Answer({DateTime.Now}): SessionID: {session.ID}, Video: {video}");
+            _logger.LogTrace($"{logPrepend} JsSIPService Answer({DateTime.Now}): SessionID: {session.Id}, Video: {video}");
 
             var arguments = new AnswerEventArgs();
 
@@ -334,7 +350,7 @@ namespace Sufficit.Telephony.JsSIP
             await (await JSContext()).InvokeVoidAsync(JSSIPSESSIONACTIONSFUNC, session, "answer", arguments);
         }
 
-        public async Task Originate(string uri, MediaConstraints mediaConstraints)
+        public async Task<JsSIPSessionInfo> Originate(string uri, MediaConstraints mediaConstraints)
         {
             _logger.LogTrace($"{logPrepend} JsSIPService Originate({DateTime.Now}): Uri: {uri}");
             if (string.IsNullOrWhiteSpace(uri))
@@ -343,18 +359,18 @@ namespace Sufficit.Telephony.JsSIP
             var arguments = new AnswerEventArgs();
             arguments.MediaConstraints = mediaConstraints;
 
-            await (await JSContext()).InvokeVoidAsync("Originate", uri, arguments);
+            return await (await JSContext()).InvokeAsync<JsSIPSessionInfo>("Originate", uri, arguments);           
         }
 
         public async Task Terminate(JsSIPSessionInfo session)
         {
-            _logger.LogTrace($"{logPrepend} JsSIPService Terminate({DateTime.Now}): SessionID: {session.ID}");
+            _logger.LogTrace($"{logPrepend} JsSIPService Terminate({DateTime.Now}): SessionID: {session.Id}");
             await (await JSContext()).InvokeVoidAsync(JSSIPSESSIONACTIONSFUNC, session, "terminate");
         }
 
         public async Task Mute(JsSIPSessionInfo session, bool audio = true, bool video = true)
         {
-            _logger.LogTrace($"{logPrepend} JsSIPService Mute({DateTime.Now}): SessionID: {session.ID}");
+            _logger.LogTrace($"{logPrepend} JsSIPService Mute({DateTime.Now}): SessionID: {session.Id}");
 
             IMediaBasic arguments = new MediaConstraints() { Audio = audio, Video = video };
             await (await JSContext()).InvokeVoidAsync(JSSIPSESSIONACTIONSFUNC, session, "mute", arguments);
@@ -362,7 +378,7 @@ namespace Sufficit.Telephony.JsSIP
 
         public async Task UnMute(JsSIPSessionInfo session, bool audio = true, bool video = true)
         {
-            _logger.LogTrace($"{logPrepend} JsSIPService UnMute({DateTime.Now}): SessionID: {session.ID}");
+            _logger.LogTrace($"{logPrepend} JsSIPService UnMute({DateTime.Now}): SessionID: {session.Id}");
 
             IMediaBasic arguments = new MediaConstraints() { Audio = audio, Video = video };
             await (await JSContext()).InvokeVoidAsync(JSSIPSESSIONACTIONSFUNC, session, "unmute", arguments);
@@ -370,13 +386,13 @@ namespace Sufficit.Telephony.JsSIP
 
         public async Task Hold(JsSIPSessionInfo session)
         {
-            _logger.LogTrace($"{logPrepend} JsSIPService Hold({DateTime.Now}): SessionID: {session.ID}");
+            _logger.LogTrace($"{logPrepend} JsSIPService Hold({DateTime.Now}): SessionID: {session.Id}");
             await (await JSContext()).InvokeVoidAsync(JSSIPSESSIONACTIONSFUNC, session, "hold");
         }
 
         public async Task UnHold(JsSIPSessionInfo session)
         {
-            _logger.LogTrace($"{logPrepend} JsSIPService UnHold({DateTime.Now}): SessionID: {session.ID}");
+            _logger.LogTrace($"{logPrepend} JsSIPService UnHold({DateTime.Now}): SessionID: {session.Id}");
             await (await JSContext()).InvokeVoidAsync(JSSIPSESSIONACTIONSFUNC, session, "unhold");
         }
 
