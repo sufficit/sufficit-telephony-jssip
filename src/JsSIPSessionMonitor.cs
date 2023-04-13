@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sufficit.Telephony.JsSIP
@@ -13,6 +14,10 @@ namespace Sufficit.Telephony.JsSIP
         [JsonIgnore]
         public JsSIPSessions? Control { get; set; }
 
+        /// <summary>
+        /// Javascript context
+        /// </summary>
+        private IJSObjectReference _context;
 
         #region JS REFERENCE
 
@@ -27,14 +32,21 @@ namespace Sufficit.Telephony.JsSIP
 
         #endregion
 
-        public JsSIPSessionMonitor(string id)
+        public JsSIPSessionMonitor(IJSObjectReference context, string id)
         {
             this.Id = id;
+            _context = context;
         }
 
-        public async void Terminate()
+        public async Task<JsSIPSessionMonitor> Initialize()
         {
+            await _context.InvokeVoidAsync("Monitor", Id, GetReference());
+            return this;
+        }
 
+        public async Task Terminate()
+        {
+            await _context.InvokeVoidAsync("Terminate", Id);
         }
 
         #region JAVASCRIPT EVENTS
@@ -63,9 +75,18 @@ namespace Sufficit.Telephony.JsSIP
         }
 
         [JSInvokable]
-        public void OnConnecting(JsonElement @event)
+        public void OnConnecting(JsSIPSessionEvent @event)
         {
-            Console.WriteLine($"connecting: {@event}");
+            if (@event.Originator == JsSIPSessionEventOriginator.remote)
+            {
+                Status = JsSIPSessionStatus.STATUS_CANCELED;
+                Cause = @event.Cause.ToString();
+                NotifyChanged();
+            }
+            else
+            {
+                Console.WriteLine($"connecting: {@event}");
+            }
         }        
 
         [JSInvokable]
@@ -82,9 +103,19 @@ namespace Sufficit.Telephony.JsSIP
         }
 
         [JSInvokable]
+        public void OnFailed(JsonElement @event)
+        {
+            Console.WriteLine($"connecting: {@event}");
+            
+            Status = JsSIPSessionStatus.STATUS_CANCELED;
+            NotifyChanged();
+        }
+        
+
+        [JSInvokable]
         public void OnEnded(JsSIPSessionEvent @event)
         {
-            if (@event.Cause == "Terminated")
+            if (@event.Cause == JsSIPSessionCause.BYE)
             {
                 Status = JsSIPSessionStatus.STATUS_TERMINATED; 
                 NotifyChanged();
@@ -104,11 +135,13 @@ namespace Sufficit.Telephony.JsSIP
         [JsonPropertyName("cause")]
         public string? Cause { get; internal set; }
 
-        public event EventHandler? OnChanged;
+        public delegate ValueTask AsyncEventHandler(JsSIPSessionMonitor sender);
+
+        public event AsyncEventHandler? OnChanged;
 
         private void NotifyChanged()
         {            
-            OnChanged?.Invoke(this, EventArgs.Empty);
+            OnChanged?.Invoke(this);
         }
 
         public void Dispose()

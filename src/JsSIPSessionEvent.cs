@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -20,7 +22,15 @@ namespace Sufficit.Telephony.JsSIP
         /// Hangup cause
         /// </summary>
         [JsonPropertyName("cause")]
+        [JsonConverter(typeof(EnumConverter<JsSIPSessionCause>))]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull)]
-        public string? Cause { get; set; }
+        public JsSIPSessionCause? Cause { get; set; }
+
+        /// <summary>
+        /// Extra message information
+        /// </summary>
+        [JsonPropertyName("message")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public JsonElement Message { get; set; }
     }
 }

@@ -8,6 +8,10 @@
         STATUS_1XX_RECEIVED = 2,
 
         STATUS_ANSWERED = 5,
+
+        /// <summary>
+        /// On Failed
+        /// </summary>
         STATUS_CANCELED = 7,
 
         /// <summary>

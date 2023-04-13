@@ -1,14 +1,13 @@
 ﻿export var WebPhone;
 export var DotNetObjectReference;
-var AccountReference;
-
+export var AccountReference;
 
 let mediaSelfElementID = 'media-player-self';
 let audioRemoteElementID = 'audio-player-remote';
 let videoRemoteElementID = 'media-player-remote';
 
 /** Recupera o estado atual do serviço  */
-export function GetStatus() {
+export const GetStatus = function() {
     return WebPhone.status;
 }
 
@@ -24,7 +23,7 @@ export const Reference = async function(jssip, dotNetObjectRef, accountRef) {
         const el = document.getElementById('jssip');
         if (!el) {
             window.JsSIPLoading = await new Promise(resolve => {
-                console.debug("resolving: ", jssip);
+                console.debug('resolving: {0}', jssip);
                 CreateScriptTag(jssip, () => resolve(window.JsSIP), document.body);
             });
         } else {
@@ -35,7 +34,7 @@ export const Reference = async function(jssip, dotNetObjectRef, accountRef) {
     await dotNetObjectRef.invokeMethodAsync('onDependenciesLoaded', window.JsSIP);
 }
 
-export const CreateScriptTag = function (url, implementationCode, location) {
+export const CreateScriptTag = function(url, implementationCode, location) {
     //url is URL of external file, implementationCode is the code
     //to be called from the file, location is the location to 
     //insert the <script> element
@@ -54,7 +53,7 @@ export const CreateScriptTag = function (url, implementationCode, location) {
  * Ocorre assim que o arquivo base JsSIP for carregado completamente
  * @param {any} config Configurações passadas pelo backend (JsSIPConfiguration)
  */
-export function onJsSIPLoaded(config) {
+export const onJsSIPLoaded = function(config) {
 
     // Criando sockets apartir dos textos passados
     let sockets = [];
@@ -93,9 +92,9 @@ export function onJsSIPLoaded(config) {
  * @param {any} mappedEvent
  * @param {any} data
  */
-function WPEvent(mappedEvent, data) {
+const WPEvent = function(mappedEvent, data) {
     switch (mappedEvent) {
-        case "onNewRTCSession": {
+        case 'onNewRTCSession': {
 
             data = data.session;
 
@@ -103,11 +102,11 @@ function WPEvent(mappedEvent, data) {
             data.toJSON = JsSIPSessionToJson;
             break;
         }
-        case "onDisconnected": {
+        case 'onDisconnected': {
             console.debug(data);
             break;
         }
-        case "NotifyRegistered": case "NotifyUnregistered": case "NotifyRegistrationFailed": {
+        case 'NotifyRegistered': case 'NotifyUnregistered': case 'NotifyRegistrationFailed': {
             AccountReference.invokeMethodAsync(mappedEvent, data);
             return undefined;
         }
@@ -118,28 +117,27 @@ function WPEvent(mappedEvent, data) {
 }
 
 /** JSON Replacer for the sessions */
-function JsSIPSessionToJson() {
+const JsSIPSessionToJson = function() {
     let properties = ['id', 'direction', 'status'];
     var result = {};
     for (const element of properties) {
         result[element] = this[element];
     }
-    //console.debug("JsSIPSessionToJson: ", this, result);
     return result;
 }
 
-export const TestDevices = async function (request) {
-    console.debug("testing devices request: {0}", request);
+export const TestDevices = async function(request) {
+    console.debug('testing devices request: {0}', request);
     let success = false;
-    let message;
     
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.mediaDevices.getUserMedia;
     const method = new Promise(function (success, reject) {
         navigator.getUserMedia(request, success, reject);
     });
 
+    let message;
     const response = await method.then(() => success = true).catch((ex) => message = `(${ex.code}) ${ex.name} => ${ex.message}`);
-    console.debug("response: ", response);
+    console.debug('response: {0}', response);
 
     return {
         request: request,
@@ -148,33 +146,8 @@ export const TestDevices = async function (request) {
     };
 }
 
-async function JsSIPTestVideo() {
-    console.debug(navigator.mediaDevices);
-    console.debug(await navigator.mediaDevices.getSupportedConstraints());
 
-    Testtt();
-    return undefined;
-
-    //return;
-    const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-
-    //console.debug('JsSIPTestVideo: ', mediaStream);
-    let videoElement = document.getElementById(mediaSelfElementID);
-    if (!videoElement) {
-        videoElement = document.createElement('video');
-        videoElement.id = mediaSelfElementID;
-        document.body.appendChild(videoElement);
-    }
-
-    if ('srcObject' in videoElement) {
-        videoElement.srcObject = mediaStream;
-    } else {
-        // Avoid using this in new browsers, as it is going away.
-        videoElement.src = URL.createObjectURL(mediaStream);
-    }
-}
-
-export const MediaDeviceUpdate = async function (mediaKind, mediaDevice) {
+export const MediaDeviceUpdate = async function(mediaKind, mediaDevice) {
     console.debug(`MediaDeviceUpdate => ${mediaKind} :: ${mediaDevice}`);
     switch (mediaKind) {
         case 'audiooutput': {
@@ -202,10 +175,10 @@ export const MediaDeviceUpdate = async function (mediaKind, mediaDevice) {
 }
 
 /** Indica se o navegador suporte a escolha do dispositivo para saída de áudio */
-export const BrowserOutputSelectSupport = function () { return !('sinkId' in HTMLMediaElement.prototype); };
+export function BrowserOutputSelectSupport() { return !('sinkId' in HTMLMediaElement.prototype); }
 
 /** Attach audio output device to video element using device/sink ID. */
-export const AttachSinkId = function (sinkId) {
+export const AttachSinkId = function(sinkId) {
     const element = document.getElementById(audioRemoteElementID);
     if (typeof element.sinkId !== 'undefined') {
         element.setSinkId(sinkId)
@@ -227,8 +200,35 @@ export const AttachSinkId = function (sinkId) {
     }
 }
 
-async function Testtt() {
-    let devices = await MediaDevices();
+/*
+const JsSIPTestVideo = async function () {
+    console.debug(navigator.mediaDevices);
+    console.debug(await navigator.mediaDevices.getSupportedConstraints());
+
+    Testtt();
+    return undefined;
+
+    //return;
+    const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+    //console.debug('JsSIPTestVideo: ', mediaStream);
+    let videoElement = document.getElementById(mediaSelfElementID);
+    if (!videoElement) {
+        videoElement = document.createElement('video');
+        videoElement.id = mediaSelfElementID;
+        document.body.appendChild(videoElement);
+    }
+
+    if ('srcObject' in videoElement) {
+        videoElement.srcObject = mediaStream;
+    } else {
+        // Avoid using this in new browsers, as it is going away.
+        videoElement.src = URL.createObjectURL(mediaStream);
+    }
+}
+
+const Testtt = async function() {
+    const devices = await MediaDevices();
 
     let cameraDevice = undefined;
     devices.forEach(function (dev) {
@@ -245,7 +245,6 @@ async function Testtt() {
             document.body.appendChild(videoElement);
         }
 
-
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: cameraDevice.deviceId } } });
 
         if ('srcObject' in videoElement) {
@@ -257,19 +256,21 @@ async function Testtt() {
     }
 }
 
-/** Recupera a lista de dispositivos de mídia disponiveis no navegador (cameras e microfones) */
-export const MediaDevices = async function () {
+*/
+
+// Recupera a lista de dispositivos de mídia disponiveis no navegador (cameras e microfones)
+export const MediaDevices = async function() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-        console.warn("enumerateDevices() not supported.");
+        console.warn('enumerateDevices() not supported.');
         return undefined;
     }
 
-    return await new Promise(resolve => {
+    return await new Promise(function(resolve) {
         // List cameras and microphones.
         navigator.mediaDevices.enumerateDevices()
             .then(resolve)
             .catch(function (err) {
-                console.error(err.name + ": " + err.message);
+                console.error(err.name + ': ' + err.message);
             });
     });
 }

@@ -46,7 +46,7 @@ namespace Sufficit.Telephony.JsSIP.Extensions
                     .First(x => x.Name.Contains("InvokeVoidAsync"));
             }
 
-            var task = methodInfo.Invoke(Module, new object[] { binder.Name, args });
+            var task = methodInfo.Invoke(Module, new object?[] { binder.Name, args });
             result = task;
             return true;
         }

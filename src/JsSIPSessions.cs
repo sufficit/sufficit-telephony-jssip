@@ -87,13 +87,17 @@ namespace Sufficit.Telephony.JsSIP
             await (await JSContext()).InvokeVoidAsync("onJsSIPSession", session);
         }
 
+        /// <summary>
+        /// Starts to monitor a sip session
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<JsSIPSessionMonitor> Monitor(string id)
         {
-            var monitor = new JsSIPSessionMonitor(id);
-            monitor.Control = this;
+            var context = await JSContext();
+            var monitor = new JsSIPSessionMonitor(context, id);
 
-            await (await JSContext()).InvokeVoidAsync("Monitor", monitor.Id, monitor.GetReference());
-            return monitor;
+            return await monitor.Initialize();
         }
 
         public async Task GetSession(string id)

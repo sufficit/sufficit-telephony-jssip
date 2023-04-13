@@ -24,7 +24,7 @@ export function onJsSIPSession(JsSIPSession) {
 
     session.on('progress', e => dispatchSessionEvent(session, 'progress', e));
     session.on('succeeded', e => dispatchSessionEvent(session, 'succeeded', e));
-    session.on('failed', e => dispatchSessionEvent(session, 'failed', e));
+    //session.on('failed', e => dispatchSessionEvent(session, 'failed', e));
     session.on('ended', e => dispatchSessionEvent(session, 'ended', e));
 
     session.on('confirmed', e => dispatchSessionEvent(session, 'confirmed', e));
@@ -43,8 +43,9 @@ export function onJsSIPSession(JsSIPSession) {
 export const Monitor = async function(id, reference) {
     console.debug('monitor session: {id}', id);
     const session = WebPhone._sessions[id];
-    if (!session)
-        throw "session not found";
+    if (!session) {
+        throw new Error('session not found');
+    }
 
     session.on('newDTMF', e => reference.invokeMethodAsync('OnNewDTMF', e));
     session.on('newInfo', e => reference.invokeMethodAsync('OnNewInfo', e));
@@ -55,12 +56,12 @@ export const Monitor = async function(id, reference) {
     session.on('unmuted', e => reference.invokeMethodAsync('OnUnmuted', e));
 
     session.on('progress', e => reference.invokeMethodAsync('OnProgress', e));
-    session.on('accepted', e => { reference.invokeMethodAsync('OnAccepted', e); console.debug("accepted: ", session.status); });
+    session.on('accepted', e => { reference.invokeMethodAsync('OnAccepted', e); console.debug('accepted: {status}', session.status); });
     session.on('succeeded', e => reference.invokeMethodAsync('OnSucceeded', e));
     session.on('failed', e => reference.invokeMethodAsync('OnFailed', e));
-    session.on('ended', e => { reference.invokeMethodAsync('OnEnded', e); console.debug("ended: ", session.status); });
+    session.on('ended', e => { reference.invokeMethodAsync('OnEnded', e); console.debug('ended: ', session.status); });
 
-    session.on('confirmed', e => { reference.invokeMethodAsync('OnConfirmed', e); console.debug("confirmed: ", session.status); });
+    session.on('confirmed', e => { reference.invokeMethodAsync('OnConfirmed', e); console.debug('confirmed: ', session.status); });
 
     // emitido ai iniciar uma tentativa de conexão de seção
     session.on('connecting', e => reference.invokeMethodAsync('OnConnecting', e));
@@ -93,7 +94,7 @@ function dispatchSessionEvent(session, title, e) {
 /** JSON Replacer for the sessions events */
 function JsSIPSessionEventToJson() {
     let properties = ['originator', 'cause'];
-    let result = {};
+    let result = {}
     for (var x in this) {
         if (properties.includes(x)) {
             let key = x;
@@ -197,6 +198,14 @@ export function JsSIPSessionActions(info, action, args) {
  */
 export const Originate = async function (uri, args) {
     return WebPhone.call(uri, args);
+}
+
+/**
+ * Terminate a call session
+ */
+export const Terminate = function (sessionId) {
+    const session = WebPhone._sessions[sessionId];
+    session.terminate();
 }
 
 /**

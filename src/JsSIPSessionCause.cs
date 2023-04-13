@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -77,5 +78,5 @@ namespace Sufficit.Telephony.JsSIP
 
         [Description("WebRTC Error")]
         WEBRTC_ERROR
-    }
+    }    
 }

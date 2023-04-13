@@ -2,11 +2,8 @@
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using Sufficit.Telephony.JsSIP.Accounts;
-using Sufficit.Telephony.JsSIP.Events;
-using Sufficit.Telephony.JsSIP.Extensions;
 using Sufficit.Telephony.JsSIP.Methods;
 using System;
-using System.Security.Principal;
 using System.Text.Json;
 using static Sufficit.Telephony.JsSIP.JsSIPGlobals;
 
