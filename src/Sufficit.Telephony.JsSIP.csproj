@@ -88,6 +88,14 @@
 		<PackageReference Include="Microsoft.Extensions.Options" Version="7.*" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.*" />
 		<PackageReference Include="Microsoft.JSInterop" Version="7.*" />
-	</ItemGroup>	
-			
+	</ItemGroup>
+
+	<ItemGroup Label="Sufficit Dependencies on Packing" Condition=" '$(Configuration)' == 'Packing' ">
+		<PackageReference Include="Sufficit.Utils" Version="1.*" />
+	</ItemGroup>
+
+	<ItemGroup Label="Sufficit Local Dependencies" Condition=" '$(Configuration)' != 'Packing' ">
+		<ProjectReference Include="..\..\sufficit-utils\src\Sufficit.Utils.csproj" />
+	</ItemGroup>
+	
 </Project>
