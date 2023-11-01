@@ -1,8 +1,4 @@
 ﻿using Microsoft.JSInterop;
-using Sufficit.Telephony.JsSIP.SIP;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -73,7 +69,7 @@ namespace Sufficit.Telephony.JsSIP.Accounts
         [JSInvokable]
         public void NotifyRegistrationFailed(JsonElement @event)
         {
-            // Console.WriteLine($"onRegistrationFailed: {@event.GetRawText()}");
+            Console.WriteLine($"onRegistrationFailed: {@event.GetRawText()}");
             LastRegistration = (DateTime.UtcNow, "fail");
 
             var args = new AccountChangedEventArgs();

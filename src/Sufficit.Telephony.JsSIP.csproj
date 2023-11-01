@@ -51,6 +51,10 @@
 		<PackageIcon>icon.png</PackageIcon>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Content Remove="bundleconfig.json" />
+	</ItemGroup>
+
 
 	<ItemGroup Label="Sufficit Pacote NUGET Itens">
 		<None Include="../icon.png">
@@ -65,11 +69,12 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
+		<None Include="bundleconfig.json" />
 	</ItemGroup>
 	
 	<Target Name="IncludeGeneratedStaticFiles">
 		<ItemGroup>
-			<Content Include="wwwroot/jssip-3.9.0.min.js" />
+			<Content Include="wwwroot/jssip-3.10.0.min.js" />
 			<Content Include="wwwroot/jssip-service.min.js" />
 			<Content Include="wwwroot/jssip-sessions.min.js" />
 		</ItemGroup>

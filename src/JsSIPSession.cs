@@ -10,16 +10,15 @@ namespace Sufficit.Telephony.JsSIP
 {
     public class JsSIPSession : JsSIPSessionInfo
     {
-        public JsSIPSession()
-        {
+        [JsonConstructor]
+        public JsSIPSession() { }
 
-        }
-
-        public JsSIPSession(JsSIPSessionInfo info) : this()
+        public JsSIPSession(JsSIPSessionInfo info)
         {
             this.Id = info.Id;
             this.Direction = info.Direction;
             this.Status = info.Status;
+            this.RemoteUser = info.RemoteUser;
         }
 
         /// <summary>
@@ -27,22 +26,25 @@ namespace Sufficit.Telephony.JsSIP
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("cause")]
-        public string? Cause { get; internal set; }
+        [JsonConverter(typeof(EnumConverter<JsSIPSessionCause>))]
+        public JsSIPSessionCause? Cause { get; internal set; }
 
         /// <summary>
-        /// Momento da ultima atualização
+        ///     Time stamp for the last event
         /// </summary>
-        public DateTime Update() => _events.OrderByDescending(s => s.Update).Select(p => p.Update).FirstOrDefault();
-
+        public DateTime GetTimestamp() => _events.OrderByDescending(s => s.Timestamp).Select(s => s.Timestamp).FirstOrDefault();
+                
         public IEnumerable<JsSIPEvent> Events() => _events;
+
+        [JsonIgnore]
         public List<JsSIPEvent> _events = new();
 
         public void Append(JsonElement jsonElement) => Append(new JsSIPEvent());
 
         public void Append(JsSIPEvent jsSIPEvent)
         {
-            if(jsSIPEvent.Update > Update())
-            {
+            if (jsSIPEvent.Timestamp > GetTimestamp())
+            {                
                 switch (jsSIPEvent)
                 {
                     case FailedSessionEventArgs updating:
@@ -55,21 +57,31 @@ namespace Sufficit.Telephony.JsSIP
 
                 NotifyChanged();
             }
+
             _events.Add(jsSIPEvent);
         }
 
+        public void Append(JsSIPSessionEvent jsSIPEvent)
+        {
+            Cause = jsSIPEvent.Cause;
+
+            switch (jsSIPEvent.Cause)
+            {
+                case JsSIPSessionCause.USER_DENIED_MEDIA_ACCESS:
+                    {                        
+                        break;
+                    }
+                default: break;
+            }
+
+            NotifyChanged();
+        }
 
         public event EventHandler? OnChanged;
 
         private void NotifyChanged()
         {            
             OnChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        public async Task Action()
-        {
-            await Task.Yield();
-            Console.WriteLine($"JsSIPSession Action({DateTime.Now})");
         }
     }
 }

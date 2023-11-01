@@ -2,14 +2,12 @@
 export var DotNetObjectReference;
 export var AccountReference;
 
-let mediaSelfElementID = 'media-player-self';
-let audioRemoteElementID = 'audio-player-remote';
-let videoRemoteElementID = 'media-player-remote';
+const mediaSelfElementID = 'media-player-self';
+const audioRemoteElementID = 'audio-player-remote';
+const videoRemoteElementID = 'media-player-remote';
 
 /** Recupera o estado atual do serviço  */
-export const GetStatus = function() {
-    return WebPhone.status;
-}
+export const GetStatus = () => WebPhone.status;
 
 /**
  * Saving dotnet object reference for service
@@ -92,7 +90,8 @@ export const onJsSIPLoaded = function(config) {
  * @param {any} mappedEvent
  * @param {any} data
  */
-const WPEvent = function(mappedEvent, data) {
+const WPEvent = function (mappedEvent, data) {
+    console.debug(`wpevent: ${mappedEvent}, data:`, data);
     switch (mappedEvent) {
         case 'onNewRTCSession': {
 
@@ -117,12 +116,13 @@ const WPEvent = function(mappedEvent, data) {
 }
 
 /** JSON Replacer for the sessions */
-const JsSIPSessionToJson = function() {
+const JsSIPSessionToJson = function () {
     let properties = ['id', 'direction', 'status'];
     var result = {};
     for (const element of properties) {
         result[element] = this[element];
     }
+    result["remoteuser"] = this["_remote_identity"]["_uri"]["_user"];
     return result;
 }
 
@@ -144,6 +144,20 @@ export const TestDevices = async function(request) {
         success: success,
         message: message
     };
+}
+
+export const RequestMediaAccess = function () {
+    console.debug("Requesting Media Access");
+    navigator.permissions.query({ name: 'microphone' }).then(function (result) {
+        console.debug("Request Media Access Result:", result);
+        if (result.state === 'granted') {
+            //permission has already been granted, no prompt is shown
+        } else if (result.state === 'prompt') {
+            //there's no peristent permission registered, will be showing the prompt
+        } else if (result.state === 'denied') {
+            //permission has been denied
+        }
+    });
 }
 
 
@@ -259,7 +273,7 @@ const Testtt = async function() {
 */
 
 // Recupera a lista de dispositivos de mídia disponiveis no navegador (cameras e microfones)
-export const MediaDevices = async function() {
+export const GetMediaDevices = async function() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
         console.warn('enumerateDevices() not supported.');
         return undefined;
@@ -274,3 +288,5 @@ export const MediaDevices = async function() {
             });
     });
 }
+
+export const GetVersion = () => JsSIP.version;

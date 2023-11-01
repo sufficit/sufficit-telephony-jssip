@@ -4,57 +4,64 @@ using Microsoft.JSInterop;
 using Sufficit.Telephony.JsSIP.Accounts;
 using Sufficit.Telephony.JsSIP.Methods;
 using System;
+using System.ComponentModel;
 using System.Text.Json;
+using System.Threading;
 using static Sufficit.Telephony.JsSIP.JsSIPGlobals;
 
 
 namespace Sufficit.Telephony.JsSIP
 {
-    public class JsSIPService
+    public class JsSIPService : JsSIPContextRuntime
     {
         /// <summary>
         /// Informativo to prepend msg logs
         /// </summary>
         const string logPrepend = "JsSIP Blazor (Service),";
 
-        const string JsSIPFile = "jssip-3.9.0.min.js";
+        const string JsSIPFile = "jssip-3.10.0.min.js";
         const string JsSIPFullPath = $"./_content/{JsSIPNamespace}/{JsSIPFile}";
-#if DEBUG
-        const string JsSIPScriptFile = $"./_content/{JsSIPNamespace}/jssip-service.js";
-#else
-        const string JsSIPScriptFile = $"./_content/{JsSIPNamespace}/jssip-service.min.js";
-#endif
 
         private readonly ILogger _logger;
-        private readonly IJSRuntime _jSRuntime;
         private readonly List<string> _jsLogs;
-        private readonly SemaphoreSlim _semaphore;
         private JsSIPOptions _options;
 
-        private IJSObjectReference? _context;
-        public async Task<IJSObjectReference> JSContext()
-        {
-            await _semaphore.WaitAsync();
-            try
-            {
-                if (_context == null)
-                {
-                    _context = await _jSRuntime.InvokeAsync<IJSObjectReference>("import", JsSIPScriptFile);
-                    var accountReference = DotNetObjectReference.Create(Account);
-                    var serviceReference = DotNetObjectReference.Create(this);
-                    await _context.InvokeVoidAsync("Reference", JsSIPFullPath, serviceReference, accountReference);
-                }
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
+#if DEBUG
+        protected override string JsSIPScriptFile { get; } = $"./_content/{JsSIPNamespace}/jssip-service.js";
+#else
+        protected override string JsSIPScriptFile { get; } = $"./_content/{JsSIPNamespace}/jssip-service.min.js";
+#endif
 
-            return _context;
+        public JsSIPService(IOptions<JsSIPOptions> options, JsSIPSessions sessions, ILogger<JsSIPService> logger, IJSRuntime JSRuntime) : base (JSRuntime)
+        {
+            _options = options.Value;
+            _logger = logger;
+
+            Monitor = new JsSIPMonitor();
+
+            Account = new JsSIPAccount();
+            Account.OnChanged += OnAccountChanged;
+
+            Sessions = sessions;
+            Sessions.Monitor = Monitor;
+            Sessions.OnChanged += NotifyChanged;
+
+            _jsLogs = new List<string>();
+            Status = string.Empty;
+
+            Devices = new MediaDeviceGroup();
+            Devices.OnChanged += OnMediaDeviceChanged;
         }
 
+        protected override async ValueTask OnReady()
+        {
+            var accountReference = DotNetObjectReference.Create(Account);
+            var serviceReference = DotNetObjectReference.Create(this);
+            await InvokeVoidAsync("Reference", JsSIPFullPath, serviceReference, accountReference);
+        }
+         
         /// <summary>
-        /// Is WebSocket Connected
+        /// Is WebSocket Connected, its only indicates that the server is ok
         /// </summary>
         public bool IsConnected { get; protected set; }
 
@@ -76,26 +83,6 @@ namespace Sufficit.Telephony.JsSIP
         /// Default sip account
         /// </summary>
         public JsSIPAccount Account { get; }
-
-        public JsSIPService(IOptions<JsSIPOptions> options, JsSIPSessions sessions, ILogger<JsSIPService> logger, IJSRuntime JSRuntime)
-        {
-            _options = options.Value;
-            _logger = logger;
-            _jSRuntime = JSRuntime;
-
-            Account = new JsSIPAccount();
-            Account.OnChanged += OnAccountChanged;
-
-            Sessions = sessions;
-            Sessions.OnChanged += NotifyChanged;
-
-            _semaphore = new SemaphoreSlim(1, 1);
-            _jsLogs = new List<string>();
-            Status = string.Empty;
-
-            Devices = new MediaDeviceGroup();
-            Devices.OnChanged += Devices_OnChanged;
-        }
 
         private void OnAccountChanged(object? sender, AccountChangedEventArgs e)
         {
@@ -128,17 +115,31 @@ namespace Sufficit.Telephony.JsSIP
 
         public async Task<JsSIPWebSocketStatus> GetWebSocketStatus()
         {
-            var response = await (await JSContext()).InvokeAsync<int>("GetStatus");
+            var response = await InvokeAsync<int>("GetStatus");
             return (JsSIPWebSocketStatus)response;
+        }
+
+        /// <summary>
+        ///     Request Browser Media Access
+        /// </summary>
+        public async Task RequestMediaAccess()
+        {
+            await InvokeVoidAsync(nameof(RequestMediaAccess));
+        }
+
+        /// <summary>
+        ///     Get JsSIP Version
+        /// </summary>
+        public async Task<string> GetVersion()
+        {
+            return await InvokeAsync<string>(nameof(GetVersion));
         }
 
         #region EVENTS CALLS FROM JAVASCRIPT
 
         /// <summary>
-        /// Invoked on Javascript Console event like log, debug, info, error, etc
+        ///     Invoked on Javascript Console event like log, debug, info, error, etc
         /// </summary>
-        /// <param name="Parameters"></param>
-        /// <returns></returns>
         [JSInvokable]
         public async Task onConsoleEvent(JsonElement args)
         {
@@ -167,10 +168,8 @@ namespace Sufficit.Telephony.JsSIP
         }
 
         /// <summary>
-        /// Start service 
+        ///     Start service 
         /// </summary>
-        /// <param name="options"></param>
-        /// <returns></returns>
         public async Task Start(JsSIPOptions? options = null)
         {
             if (options != null) _options = options;
@@ -178,7 +177,8 @@ namespace Sufficit.Telephony.JsSIP
             if (!_options.Sockets.Any())
                 throw new Exception("none valid socket configured");
 
-            await (await JSContext()).InvokeVoidAsync("onJsSIPLoaded", _options);
+            await InvokeVoidAsync("onJsSIPLoaded", _options);
+            NotifyChanged();
         }
 
         [JSInvokable]
@@ -196,6 +196,8 @@ namespace Sufficit.Telephony.JsSIP
         [JSInvokable]
         public async Task onConnected(JsonElement args)
         {
+            IsConnected = true;
+
             await Task.Yield();
             if (args.ValueKind != JsonValueKind.Undefined && args.ValueKind != JsonValueKind.Null)
             {
@@ -208,11 +210,14 @@ namespace Sufficit.Telephony.JsSIP
         [JSInvokable]
         public async Task onDisconnected(JsonElement args)
         {
+            IsConnected = false;
+
             await Task.Yield();
             if (args.ValueKind != JsonValueKind.Undefined && args.ValueKind != JsonValueKind.Null)
             {
                 _logger?.LogTrace($"{ logPrepend } onDisconnected: { args.GetRawText() }");
                 _logger?.LogInformation($"{ logPrepend } disconnected event");
+
                 NotifyChanged();
             }
         }
@@ -220,7 +225,7 @@ namespace Sufficit.Telephony.JsSIP
         [JSInvokable]
         public async Task onNewRTCSession(JsSIPSessionInfo info)
         {
-            _logger?.LogInformation($"{ logPrepend } new rtc session event, id: ({info.Id})");
+            _logger?.LogInformation($"{ logPrepend } new rtc session event, id: ({info.Id}), for: ({info.RemoteUser})");
 
             var session = new JsSIPSession(info);
             await Sessions.Append(session);            
@@ -314,12 +319,10 @@ namespace Sufficit.Telephony.JsSIP
         /// <summary>
         /// Realiza uma chamada
         /// </summary>
-        /// <param name="session"></param>
-        /// <returns></returns>
         public async Task<JsSIPSessionInfo> Call(string uri, bool video = true)
         {
             var mediaConstraints = new MediaConstraints();
-            if(!string.IsNullOrWhiteSpace(Devices.AudioInput))
+            if (!string.IsNullOrWhiteSpace(Devices.AudioInput))
                 mediaConstraints.Audio = new MediaOptions() { DeviceID = Devices.AudioInput };
 
             if (video) {
@@ -328,43 +331,45 @@ namespace Sufficit.Telephony.JsSIP
                 else mediaConstraints.Video = new MediaOptions(true);
             }
 
+            var json = JsonSerializer.Serialize(mediaConstraints);
+            _logger.LogInformation("call: {0}", json);
+
             return await Sessions.Originate(uri, mediaConstraints);
         }
 
         public async Task<JsSIPSessionMonitor> CallMonitor(string uri, bool video = true)
         {
             var info = await Call(uri, video);
-            return await Sessions.Monitor(info.Id);
+            return Sessions.CallMonitor(info);
         }
 
         /// <summary>
-        /// Recupera os dispositivos de media disponíveis
+        ///     Recupera os dispositivos de media disponíveis
         /// </summary>
-        /// <returns></returns>
-        public async Task<IEnumerable<JsSIPMediaDevice>> MediaDevices()
+        public async Task<IEnumerable<JsSIPMediaDevice>> GetMediaDevices()
         {
-            return await (await JSContext()).InvokeAsync<IEnumerable<JsSIPMediaDevice>>(nameof(MediaDevices));
+            return await InvokeAsync<IEnumerable<JsSIPMediaDevice>>(nameof(GetMediaDevices));
         }
 
         public async Task<TestDevicesResponse> TestDevices(TestDevicesRequest request)
         {
-            return await (await JSContext()).InvokeAsync<TestDevicesResponse>(nameof(TestDevices), request);           
+            return await InvokeAsync<TestDevicesResponse>(nameof(TestDevices), request);           
         }
 
-        private async void Devices_OnChanged(object? sender, EventArgs e)
+        private async void OnMediaDeviceChanged(object? sender, EventArgs e)
         {
-            if(sender != null && sender is MediaDeviceGroup group)
+            if (sender is MediaDeviceGroup group)
             {
                 try
                 {
                     if (!string.IsNullOrWhiteSpace(group.VideoInput))
                     {
-                        await (await JSContext()).InvokeVoidAsync("MediaDeviceUpdate", "videoinput", group.VideoInput);
+                        await InvokeVoidAsync("MediaDeviceUpdate", "videoinput", group.VideoInput);
                     }
 
                     if (!string.IsNullOrWhiteSpace(group.AudioOuput))
                     {
-                        await (await JSContext()).InvokeVoidAsync("MediaDeviceUpdate", "audiooutput", group.AudioOuput);
+                        await InvokeVoidAsync("MediaDeviceUpdate", "audiooutput", group.AudioOuput);
                     }
                 }
                 catch(Exception ex)
@@ -373,5 +378,13 @@ namespace Sufficit.Telephony.JsSIP
                 }
             }
         }
+
+        public JsSIPMonitor Monitor { get; }
+
+        /// <summary>
+        ///     Recover a session control object
+        /// </summary>
+        public JsSIPSessionControl GetControl(string id)
+            => new JsSIPSessionControl(id, Sessions);
     }
 }

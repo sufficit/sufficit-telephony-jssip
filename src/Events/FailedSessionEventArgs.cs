@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Sufficit.Telephony.JsSIP.Events
@@ -11,8 +13,17 @@ namespace Sufficit.Telephony.JsSIP.Events
     {
         public string Originator { get; set; } = string.Empty;
 
-        public string Cause { get; set; } = string.Empty;
+        /// <summary>
+        /// Hangup cause
+        /// </summary>
+        [JsonPropertyName("cause")]
+        [JsonConverter(typeof(EnumConverter<JsSIPSessionCause>))]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull)]
+        public JsSIPSessionCause Cause { get; set; }
 
-        public string ToJsonString() => JsonSerializer.Serialize(this);
+        public string? ToJsonString()
+        {
+            try { return JsonSerializer.Serialize(this); } catch { return null; }
+        }
     }
 }

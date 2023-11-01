@@ -15,10 +15,12 @@ namespace Sufficit.Telephony.JsSIP
 
         [JsonPropertyName("deviceId")]
         [DataMember(EmitDefaultValue = false)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? DeviceID { get; set; }
 
         [JsonPropertyName("exact")]
         [DataMember(EmitDefaultValue = false)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public MediaOptions? Exact { get; set; }
 
         public static implicit operator MediaOptions(bool options)

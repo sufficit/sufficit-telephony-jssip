@@ -18,6 +18,7 @@ namespace Sufficit.Telephony.JsSIP
         //{ video: true, audio: true }
         //{ video: { deviceId: { exact: cameraDevice.deviceId } } }
         [JsonPropertyName("video")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [DataMember(EmitDefaultValue = false)]
         public MediaOptions? Video { get; set; }
 

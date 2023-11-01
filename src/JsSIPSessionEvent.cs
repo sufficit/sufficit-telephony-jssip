@@ -12,6 +12,13 @@ namespace Sufficit.Telephony.JsSIP
     public class JsSIPSessionEvent
     {
         /// <summary>
+        ///     Action name that dispatch this event
+        /// </summary>
+        [JsonPropertyName("action")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull)]
+        public string? Action { get; set; }
+
+        /// <summary>
         /// Indicates the channel that originate the referenced event
         /// </summary>
         [JsonPropertyName("originator")]

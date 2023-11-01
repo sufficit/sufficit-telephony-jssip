@@ -11,9 +11,10 @@ namespace Sufficit.Telephony.JsSIP
     public class JsSIPEvent
     {
         /// <summary>
-        /// Momento em que ocorreu o evento
+        ///     Time stamp for this event
         /// </summary>
-        public DateTime Update { get; set; } = DateTime.UtcNow;
+        [JsonPropertyName("timestamp")]
+        public DateTime Timestamp { get; } = DateTime.UtcNow;
 
         [JsonPropertyName("response")]
         public virtual JsonElement Response { get; set; }

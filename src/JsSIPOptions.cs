@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -13,7 +14,6 @@ namespace Sufficit.Telephony.JsSIP
         public JsSIPOptions()
         {
             this.Uri = string.Empty;
-            this.Password = string.Empty;  
             this.UserAgent = "Sufficit WebRTC Phone";
             this.Sockets = new string[]{ };
             this.TraceSip = false;
@@ -24,7 +24,8 @@ namespace Sufficit.Telephony.JsSIP
         public string Uri { get; set; }
 
         [JsonPropertyName("password")]
-        public string Password { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull | JsonIgnoreCondition.WhenWritingDefault)]
+        public string? Password { get; set; }
 
         [JsonPropertyName("user_agent")]
         public string UserAgent { get; set; }
@@ -39,6 +40,11 @@ namespace Sufficit.Telephony.JsSIP
 
         [JsonPropertyName("stunServers")]
         public string[] StunServers { get; set; }
+
+        [JsonPropertyName("register")]
+        [DefaultValue(true)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Register { get; set; } = true;
 
         /*
          

@@ -5,6 +5,6 @@ namespace Sufficit.Telephony.JsSIP
     public enum JsSIPSessionDirection
     {
         outgoing,
-        inbound
+        incoming
     }
 }

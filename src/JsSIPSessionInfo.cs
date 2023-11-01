@@ -29,5 +29,9 @@ namespace Sufficit.Telephony.JsSIP
         /// </summary>
         [JsonPropertyName("status")]
         public JsSIPSessionStatus Status { get; set; }
+
+
+        [JsonPropertyName("remoteuser")]
+        public string? RemoteUser { get; set; }
     }
 }

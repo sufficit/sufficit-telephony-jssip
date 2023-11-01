@@ -17,8 +17,7 @@ namespace Sufficit.Telephony.JsSIP
 
             // Incluindo serviço de softphone em javascript
             services.AddTransient<JsSIPSessions>();
-            services.AddTransient<JsSIPService>();
-            services.TryAddSingleton(sp => sp.GetRequiredService<JsSIPService>());
+            services.AddScoped<JsSIPService>();
 
             return services;
         }
