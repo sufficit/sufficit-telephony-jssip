@@ -13,7 +13,7 @@ export const GetStatus = () => WebPhone.status;
  * Saving dotnet object reference for service
  * @param {any} dotNetObjectRef
  */
-export const Reference = async function(jssip, dotNetObjectRef, accountRef) {
+export const Reference = async function (jssip, dotNetObjectRef, accountRef) {
     DotNetObjectReference = dotNetObjectRef;
     AccountReference = accountRef;
     if (!window.JsSIP) {
@@ -32,7 +32,7 @@ export const Reference = async function(jssip, dotNetObjectRef, accountRef) {
     await dotNetObjectRef.invokeMethodAsync('onDependenciesLoaded', window.JsSIP);
 }
 
-export const CreateScriptTag = function(url, implementationCode, location) {
+export const CreateScriptTag = function (url, implementationCode, location) {
     //url is URL of external file, implementationCode is the code
     //to be called from the file, location is the location to 
     //insert the <script> element
