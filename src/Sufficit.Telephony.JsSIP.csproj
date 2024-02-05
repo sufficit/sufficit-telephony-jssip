@@ -88,6 +88,7 @@
 		<PackageReference Include="BuildBundlerMinifierPlus" Version="5.3.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components" Version="8.*" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.*" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Connections.Common" Version="8.*" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.*" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.*" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="8.*" />
