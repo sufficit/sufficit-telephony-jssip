@@ -1,14 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
-using Microsoft.JSInterop.Implementation;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using Microsoft.JSInterop;
 
 namespace Sufficit.Telephony.JsSIP
 {

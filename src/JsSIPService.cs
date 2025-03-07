@@ -7,6 +7,7 @@ using System;
 using System.ComponentModel;
 using System.Text.Json;
 using System.Threading;
+using System.Xml.Linq;
 using static Sufficit.Telephony.JsSIP.JsSIPGlobals;
 
 
@@ -159,7 +160,7 @@ namespace Sufficit.Telephony.JsSIP
             {
                 string? name = args.GetProperty("name").GetString();
                 string? version = args.GetProperty("version").GetString();
-                _logger?.LogDebug($"{logPrepend} HandleJsSIPLoad: {name}({version})");
+                _logger?.LogDebug("{prefix} HandleJsSIPLoad: {name}({version})", logPrepend, name, version);
 
                 // await _jSRuntime.InvokeVoidAsync("interceptConsoleEvents", _reference);
                 //if(string.IsNullOrWhiteSpace(Status))
@@ -187,7 +188,7 @@ namespace Sufficit.Telephony.JsSIP
             await Task.Yield();
             if (args.ValueKind != JsonValueKind.Undefined && args.ValueKind != JsonValueKind.Null)
             {
-                _logger?.LogTrace($"{ logPrepend } onEvent: { args.GetRawText() }");
+                _logger?.LogTrace("{prefix} onEvent: {args}", logPrepend, args.GetRawText());
                 _logger?.LogInformation($"{ logPrepend } Unknown event");
                 NotifyChanged();
             }
