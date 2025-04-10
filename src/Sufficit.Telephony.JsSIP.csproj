@@ -5,6 +5,7 @@
 			IncludeGeneratedStaticFiles;
 			$(ResolveStaticWebAssetsInputsDependsOn)
 		</ResolveStaticWebAssetsInputsDependsOn>
+		<Configurations>Debug;Release;Packing</Configurations>
 	</PropertyGroup>
 
 	<PropertyGroup>
