@@ -50,7 +50,6 @@ namespace Sufficit.Telephony.JsSIP
          
          // optional configurations
     authorizationUser: null,
-    register: true,
     rel100: 'supported',
     registerExpires: null,
     noAnswerTimeout: null,

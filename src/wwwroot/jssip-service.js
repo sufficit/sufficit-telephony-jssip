@@ -49,14 +49,14 @@ export const CreateScriptTag = function (url, implementationCode, location) {
 
 /**
  * Ocorre assim que o arquivo base JsSIP for carregado completamente
- * @param {any} config Configurações passadas pelo backend (JsSIPConfiguration)
+ * @param {any} config Configurações passadas pelo backend (JsSIPOptions)
  */
 export const onJsSIPLoaded = function(config) {
 
     // Criando sockets apartir dos textos passados
-    let sockets = [];
+    const sockets = [];
     config.sockets.forEach(function (address) {
-        let socket = new JsSIP.WebSocketInterface(address);
+        const socket = new JsSIP.WebSocketInterface(address);
         sockets.push(socket);
     });
 
@@ -117,7 +117,7 @@ const WPEvent = function (mappedEvent, data) {
 
 /** JSON Replacer for the sessions */
 const JsSIPSessionToJson = function () {
-    let properties = ['id', 'direction', 'status'];
+    const properties = ['id', 'direction', 'status'];
     var result = {};
     for (const element of properties) {
         result[element] = this[element];
@@ -159,7 +159,6 @@ export const RequestMediaAccess = function () {
         }
     });
 }
-
 
 export const MediaDeviceUpdate = async function(mediaKind, mediaDevice) {
     console.debug(`MediaDeviceUpdate => ${mediaKind} :: ${mediaDevice}`);
