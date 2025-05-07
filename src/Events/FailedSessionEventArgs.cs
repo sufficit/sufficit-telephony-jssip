@@ -17,7 +17,6 @@ namespace Sufficit.Telephony.JsSIP.Events
         /// Hangup cause
         /// </summary>
         [JsonPropertyName("cause")]
-        [JsonConverter(typeof(EnumConverter<JsSIPSessionCause>))]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull)]
         public JsSIPSessionCause Cause { get; set; }
 

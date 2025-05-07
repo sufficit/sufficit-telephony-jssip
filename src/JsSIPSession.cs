@@ -26,7 +26,6 @@ namespace Sufficit.Telephony.JsSIP
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("cause")]
-        [JsonConverter(typeof(EnumConverter<JsSIPSessionCause>))]
         public JsSIPSessionCause? Cause { get; internal set; }
 
         /// <summary>
