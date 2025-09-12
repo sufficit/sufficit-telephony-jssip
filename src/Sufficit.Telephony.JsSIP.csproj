@@ -1,18 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 	
-	<PropertyGroup>
-		<ResolveStaticWebAssetsInputsDependsOn>
-			IncludeGeneratedStaticFiles;
-			$(ResolveStaticWebAssetsInputsDependsOn)
-		</ResolveStaticWebAssetsInputsDependsOn>
-		<Configurations>Debug;Release;Packing</Configurations>
-	</PropertyGroup>
-
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
 		<RootNamespace>Sufficit.Telephony.JsSIP</RootNamespace>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<PropertyGroup Label="Sufficit Versioning">
@@ -51,12 +41,7 @@
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<PackageIcon>icon.png</PackageIcon>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <Content Remove="bundleconfig.json" />
-	</ItemGroup>
-
-
+	
 	<ItemGroup Label="Sufficit Pacote NUGET Itens">
 		<None Include="../icon.png">
 			<Pack>True</Pack>
@@ -74,39 +59,38 @@
 			<Pack>False</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="bundleconfig.json" />
 	</ItemGroup>
 	
-	<Target Name="IncludeGeneratedStaticFiles">
-		<ItemGroup>
-			<Content Include="wwwroot/jssip-3.10.0.min.js" />
-			<Content Include="wwwroot/jssip-service.min.js" />
-			<Content Include="wwwroot/jssip-sessions.min.js" />
-		</ItemGroup>
-	</Target>
-	
+	<!-- No explicit Content Include needed: Razor SDK automatically includes wwwroot/** as static web assets -->
 	<ItemGroup>
 		<SupportedPlatform Include="browser" />
-	</ItemGroup>	
+	</ItemGroup>
 	
+	<!-- #region Sufficit Versioning Options V:202508251150 -->
+
+	<PropertyGroup Label="Sufficit Versioning Options" Condition=" '$(TargetFramework)' == 'net9.0' ">
+		<PkgVersion>[9.*,10.0.0)</PkgVersion>
+		<LangVersion>12.0</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<!-- #endregion -->
 	<ItemGroup>
-		<PackageReference Include="BuildBundlerMinifierPlus" Version="5.3.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="[*,10.0.0)" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="[*,10.0.0)" />
-		<PackageReference Include="Microsoft.AspNetCore.Http.Connections.Common" Version="[*,10.0.0)" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="[*,10.0.0)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[*,10.0.0)" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="[*,10.0.0)" />
-		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="[*,10.0.0)" />
-		<PackageReference Include="Microsoft.JSInterop" Version="[*,10.0.0)" />
-	</ItemGroup>
-
-	<ItemGroup Label="Sufficit Dependencies on Packing" Condition=" '$(Configuration)' == 'Packing' ">
-		<PackageReference Include="Sufficit.Utils" Version="1.*" />
-	</ItemGroup>
-
-	<ItemGroup Label="Sufficit Local Dependencies" Condition=" '$(Configuration)' != 'Packing' ">
-		<ProjectReference Include="..\..\sufficit-utils\src\Sufficit.Utils.csproj" />
+		<PackageReference Include="BundlerMinifier.Core" Version="3.2.449" />
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="$(PkgVersion)" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(PkgVersion)" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Connections.Common" Version="$(PkgVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(PkgVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(PkgVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="$(PkgVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(PkgVersion)" />
+		<PackageReference Include="Microsoft.JSInterop" Version="$(PkgVersion)" />
 	</ItemGroup>
 	
+	<ItemGroup Label="Sufficit Dependencies">
+		<ProjectReference Include="..\..\sufficit-utils\src\Sufficit.Utils.csproj" Condition="Exists('..\\..\\sufficit-utils\\src\\Sufficit.Utils.csproj')" />
+		<PackageReference Include="Sufficit.Utils" Version="1.*" Condition="!Exists('..\\..\\sufficit-utils\\src\\Sufficit.Utils.csproj') " />
+	</ItemGroup>
+		
 </Project>
