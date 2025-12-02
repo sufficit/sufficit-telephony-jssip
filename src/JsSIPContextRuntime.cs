@@ -52,12 +52,22 @@ namespace Sufficit.Telephony.JsSIP
         public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, params object?[]? args)
             => await(await JSContext()).InvokeAsync<TValue>(identifier, cancellationToken, args);
 
+        private bool _disposed;
+
         public async ValueTask DisposeAsync()
         {
-            if (_context != null)
+            if (!_disposed)
             {
-                await _context.DisposeAsync();
-                _context = null;
+                if (_context != null)
+                {
+                    await _context.DisposeAsync().ConfigureAwait(false);
+                    _context = null;
+                }
+
+                // Dispose do semaphore
+                _semaphore?.Dispose();
+
+                _disposed = true;
             }
         }
     }

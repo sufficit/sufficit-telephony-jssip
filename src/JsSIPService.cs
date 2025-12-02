@@ -13,7 +13,7 @@ using static Sufficit.Telephony.JsSIP.JsSIPGlobals;
 
 namespace Sufficit.Telephony.JsSIP
 {
-    public class JsSIPService : JsSIPContextRuntime
+    public class JsSIPService : JsSIPContextRuntime, IDisposable
     {
         /// <summary>
         /// Informativo to prepend msg logs
@@ -387,5 +387,29 @@ namespace Sufficit.Telephony.JsSIP
         /// </summary>
         public JsSIPSessionControl GetControl(string id)
             => new JsSIPSessionControl(id, Sessions);
+
+        private bool _disposed;
+
+        public void Dispose()
+        {
+            DisposeAsync().AsTask().GetAwaiter().GetResult();
+        }
+
+        public new async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                // Remover event handlers
+                Account.OnChanged -= OnAccountChanged;
+                Sessions.OnChanged -= NotifyChanged;
+                Devices.OnChanged -= OnMediaDeviceChanged;
+                OnChanged = null;
+
+                // Chamar o DisposeAsync da classe base (JsSIPContextRuntime)
+                await base.DisposeAsync().ConfigureAwait(false);
+
+                _disposed = true;
+            }
+        }
     }
 }
