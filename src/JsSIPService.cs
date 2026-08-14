@@ -27,11 +27,7 @@ namespace Sufficit.Telephony.JsSIP
         private readonly List<string> _jsLogs;
         private JsSIPOptions _options;
 
-#if DEBUG
         protected override string JsSIPScriptFile { get; } = $"./_content/{JsSIPNamespace}/jssip-service.js";
-#else
-        protected override string JsSIPScriptFile { get; } = $"./_content/{JsSIPNamespace}/jssip-service.min.js";
-#endif
 
         public JsSIPService(IOptions<JsSIPOptions> options, JsSIPSessions sessions, ILogger<JsSIPService> logger, IJSRuntime JSRuntime) : base (JSRuntime)
         {

@@ -46,3 +46,14 @@ The error occurred because:
 - The BuildBundlerMinifierPlus package handles the actual minification based on `bundleconfig.json`
 - The minified files are generated during build and conditionally included in the output
 - This approach avoids the timing issues that occurred with the custom target approach
+
+## Atualização 2026-08-13
+
+O empacotamento legado foi removido. `BundlerMinifier.Core` dependia de
+`Newtonsoft.Json 9.0.1` e os caminhos usados em Release apontavam para arquivos
+minificados que não eram publicados como static web assets.
+
+Os módulos próprios do JsSIP agora são servidos diretamente a partir de
+`wwwroot/*.js`. A aplicação hospedeira continua responsável pela compressão HTTP
+dos static web assets, evitando uma dependência de build obsoleta sem aumentar de
+forma relevante o tráfego transferido ao navegador.
